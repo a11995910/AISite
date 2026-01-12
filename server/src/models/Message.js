@@ -23,7 +23,7 @@ const Message = sequelize.define('Message', {
     comment: '角色'
   },
   content: {
-    type: DataTypes.TEXT,
+    type: DataTypes.TEXT('long'), // LONGTEXT，支持大型内容如base64图片
     allowNull: false,
     comment: '消息内容'
   },

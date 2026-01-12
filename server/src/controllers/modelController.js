@@ -113,6 +113,7 @@ const updateModel = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { 
+      providerId,
       name, 
       modelId, 
       type, 
@@ -126,7 +127,16 @@ const updateModel = async (req, res, next) => {
       return response.error(res, '模型不存在', 404);
     }
 
+    // 如果要更新服务商，检查服务商是否存在
+    if (providerId !== undefined && providerId !== model.providerId) {
+      const provider = await ModelProvider.findByPk(providerId);
+      if (!provider) {
+        return response.error(res, '服务商不存在', 400);
+      }
+    }
+
     await model.update({
+      providerId: providerId !== undefined ? providerId : model.providerId,
       name: name !== undefined ? name : model.name,
       modelId: modelId !== undefined ? modelId : model.modelId,
       type: type !== undefined ? type : model.type,

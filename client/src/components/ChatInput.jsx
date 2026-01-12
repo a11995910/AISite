@@ -41,8 +41,16 @@ const ChatInput = ({ onSend, disabled }) => {
     setSearchEngine,
     selectedKnowledgeBaseIds,
     setSelectedKnowledgeBaseIds,
-    sending
+    sending,
+    currentConversationId // 监听对话切换
   } = useChatStore();
+
+  // 切换对话时重置输入状态
+  useEffect(() => {
+    setValue('');
+    setMode('chat');
+    setUploadedFiles([]);
+  }, [currentConversationId]);
 
   // 加载可用的搜索引擎列表
   useEffect(() => {

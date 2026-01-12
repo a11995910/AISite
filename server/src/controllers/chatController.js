@@ -3,6 +3,8 @@
  * 处理AI对话相关业务逻辑
  */
 
+const fs = require('fs');
+const path = require('path');
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 const response = require('../utils/response');
@@ -1030,7 +1032,74 @@ async function generateImage(res, prompt, userId, agentId) {
         }
 
         const data = await response.json();
-        const imageUrl = data.data?.[0]?.url;
+        console.log('图片API响应数据:', JSON.stringify(data).slice(0, 500));
+        
+        // 兼容多种API响应格式
+        let imageUrl = null;
+        let isBase64 = false;
+        let base64Data = null;
+        
+        // 格式1: OpenAI/DALL-E 标准格式 { data: [{ url: "..." }] }
+        if (data.data?.[0]?.url) {
+          imageUrl = data.data[0].url;
+        }
+        // 格式2: OpenAI base64 格式 { data: [{ b64_json: "..." }] }
+        else if (data.data?.[0]?.b64_json) {
+          base64Data = data.data[0].b64_json;
+          isBase64 = true;
+        }
+        // 格式3: 某些代理返回 { images: [{ url: "..." }] }
+        else if (data.images?.[0]?.url) {
+          imageUrl = data.images[0].url;
+        }
+        // 格式4: 直接返回 { url: "..." }
+        else if (data.url) {
+          imageUrl = data.url;
+        }
+        // 格式5: 某些API返回 { image_url: "..." }
+        else if (data.image_url) {
+          imageUrl = data.image_url;
+        }
+        // 格式6: 某些API返回 base64 字段
+        else if (data.data?.[0]?.base64) {
+          base64Data = data.data[0].base64;
+          isBase64 = true;
+        }
+        // 格式7: 直接返回 base64 字符串
+        else if (data.base64) {
+          base64Data = data.base64;
+          isBase64 = true;
+        }
+        // 格式8: 某些API返回 { artifacts: [{ base64: "..." }] }
+        else if (data.artifacts?.[0]?.base64) {
+          base64Data = data.artifacts[0].base64;
+          isBase64 = true;
+        }
+
+        // 如果是base64数据，保存到文件并生成URL
+        if (isBase64 && base64Data) {
+          try {
+            const uploadsDir = path.join(__dirname, '../../uploads/images');
+            if (!fs.existsSync(uploadsDir)) {
+              fs.mkdirSync(uploadsDir, { recursive: true });
+            }
+            
+            const fileName = `ai-image-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+            const filePath = path.join(uploadsDir, fileName);
+            
+            // 将base64数据写入文件
+            const buffer = Buffer.from(base64Data, 'base64');
+            fs.writeFileSync(filePath, buffer);
+            
+            // 生成可访问的URL
+            imageUrl = `/uploads/images/${fileName}`;
+            console.log('图片已保存到:', filePath, '可访问URL:', imageUrl);
+          } catch (fileError) {
+            console.error('保存图片文件失败:', fileError);
+            // 如果保存失败，回退到base64内联
+            imageUrl = `data:image/png;base64,${base64Data}`;
+          }
+        }
 
         if (imageUrl) {
           const result = `🎨 **图片已生成**\n\n![${prompt}](${imageUrl})\n\n*提示词: ${prompt}*`;
@@ -1043,7 +1112,8 @@ async function generateImage(res, prompt, userId, agentId) {
           
           return result;
         } else {
-          throw new Error('API响应中未包含图片URL');
+          console.error('无法解析图片URL，完整响应:', JSON.stringify(data));
+          throw new Error('API响应格式不支持，请检查服务商配置');
         }
       } catch (apiError) {
         console.error('图片API调用失败:', apiError);
