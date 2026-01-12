@@ -1,0 +1,351 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  background: #fafafa;
+}
+
+/* 系统品牌区域 */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(22, 119, 255, 0.08) 0%, rgba(9, 88, 217, 0.05) 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(22, 119, 255, 0.1);
+}
+
+.brand-icon {
+  font-size: 28px;
+  color: #1677ff;
+}
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-header {
+  margin-bottom: 16px;
+}
+
+.new-chat-btn {
+  width: 100%;
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+  border: none;
+  font-size: 15px;
+}
+
+.sidebar-tabs {
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 12px;
+}
+
+.sidebar-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.sidebar-tab.active {
+  background: #fff;
+  color: #1677ff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-search {
+  margin-bottom: 12px;
+}
+
+.sidebar-search .ant-input-affix-wrapper {
+  border-radius: 8px;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+}
+
+.search-icon {
+  color: #bfbfbf;
+}
+
+.sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.sidebar-empty {
+  padding: 40px 0;
+}
+
+/* 对话项样式 */
+.conversation-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+}
+
+.conversation-item:hover {
+  background: #f0f0f0;
+}
+
+.conversation-item.active {
+  background: linear-gradient(135deg, rgba(22, 119, 255, 0.1) 0%, rgba(9, 88, 217, 0.1) 100%);
+}
+
+.conv-icon {
+  font-size: 16px;
+  color: #999;
+}
+
+.conv-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #333;
+}
+
+.conv-delete {
+  display: none;
+  color: #999;
+  font-size: 14px;
+}
+
+.conversation-item:hover .conv-delete {
+  display: block;
+}
+
+.conv-delete:hover {
+  color: #ff4d4f;
+}
+
+/* Agent项样式 */
+.agent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+}
+
+.agent-item:hover {
+  background: #f0f0f0;
+}
+
+.agent-avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+}
+
+.agent-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.enterprise-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+}
+
+.enterprise-badge .ant-badge-count {
+  background: #1677ff;
+  font-size: 10px;
+  padding: 0 4px;
+  height: 16px;
+  line-height: 16px;
+  border-radius: 4px;
+}
+
+.agent-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.agent-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.agent-desc {
+  font-size: 12px;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Agent Tag & Icon Styles */
+.conv-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+}
+
+.agent-icon {
+  color: #1677ff;
+}
+
+.conv-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.conv-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.agent-tag {
+  font-size: 10px;
+  background-color: rgba(22, 119, 255, 0.1);
+  color: #1677ff;
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-left: 6px;
+  white-space: nowrap;
+  border: 1px solid rgba(22, 119, 255, 0.2);
+}
+
+.conversation-item.active .agent-tag {
+  background-color: rgba(22, 119, 255, 0.15);
+  color: #1677ff;
+  border-color: rgba(22, 119, 255, 0.3);
+}
+
+.conversation-item.active .agent-icon {
+  color: #1677ff !important;
+}
+
+.conversation-item.active .conv-title {
+  color: #1677ff;
+  font-weight: 500;
+}
+
+/* 个人助手徽章样式 */
+.personal-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+}
+
+.personal-badge .ant-badge-count {
+  background: #52c41a;
+  font-size: 10px;
+  padding: 0 4px;
+  height: 16px;
+  line-height: 16px;
+  border-radius: 4px;
+  min-width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Agent删除按钮样式 */
+.agent-delete {
+  display: none;
+  color: #999;
+  font-size: 14px;
+  padding: 4px;
+  margin-left: auto;
+}
+
+.agent-item:hover .agent-delete {
+  display: block;
+}
+
+.agent-delete:hover {
+  color: #ff4d4f;
+}
+
+/* 添加个人助手按钮 */
+.add-agent-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-agent-btn:hover {
+  border-color: #1677ff;
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.04);
+}
+
+/* 创建助手Modal样式 */
+.ant-modal .ant-form-item-label {
+  width: 100%;
+}
+
+.ant-modal .ant-form-item-label > label {
+  width: 100%;
+}
+
+.generate-prompt-btn {
+  color: #1677ff;
+}
+
+.generate-prompt-btn:hover {
+  color: #4096ff;
+}

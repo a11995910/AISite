@@ -1,0 +1,238 @@
+.chat-input {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.input-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 4px;
+}
+
+.toolbar-btn {
+  color: #999;
+  width: 32px;
+  height: 32px;
+}
+
+.toolbar-btn:hover {
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.1);
+}
+
+.toolbar-btn.active {
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.15);
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.toolbar-tag.web {
+  background: rgba(17, 153, 142, 0.1);
+  color: #11998e;
+}
+
+.toolbar-tag.kb {
+  background: rgba(22, 119, 255, 0.1);
+  color: #1677ff;
+}
+
+.input-area {
+  display: flex;
+  align-items: flex-end;
+  padding: 12px;
+  gap: 12px;
+}
+
+.input-textarea {
+  flex: 1;
+  border: none;
+  resize: none;
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 8px 0;
+}
+
+.input-textarea:focus {
+  box-shadow: none;
+}
+
+.send-btn {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+  border: none;
+}
+
+.send-btn:hover {
+  background: linear-gradient(135deg, #4096ff 0%, #0958d9 100%);
+}
+
+.send-btn:disabled {
+  background: #d9d9d9;
+  color: #999;
+}
+
+/* 知识库弹出框 */
+.kb-popover {
+  min-width: 180px;
+}
+
+.kb-title {
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.kb-item {
+  padding: 6px 0;
+}
+
+.kb-item:hover {
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.kb-empty {
+  color: #999;
+  font-size: 13px;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* 上传文件预览 */
+.uploaded-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.uploaded-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+}
+
+.uploaded-file .file-icon {
+  color: #1677ff;
+  font-size: 14px;
+}
+
+.uploaded-file .file-name {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploaded-file .file-remove {
+  color: #999;
+  cursor: pointer;
+  font-size: 12px;
+  transition: color 0.2s;
+}
+
+.uploaded-file .file-remove:hover {
+  color: #ff4d4f;
+}
+
+/* 模式切换 */
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: #e8e8e8;
+  margin: 0 8px;
+}
+
+.mode-switch {
+  background: #f0f0f0;
+  border-radius: 6px;
+}
+
+.mode-switch .ant-segmented-item {
+  padding: 2px 8px;
+}
+
+.mode-switch.chat-mode .ant-segmented-item-selected {
+  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+  color: #fff;
+}
+
+.mode-switch.image-mode .ant-segmented-item-selected {
+  background: linear-gradient(135deg, rgba(252, 70, 107, 0.8) 0%, rgba(63, 94, 251, 0.8) 100%);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+/* 绘画模式标签 */
+.toolbar-tag.image {
+  background: rgba(9, 88, 217, 0.1);
+  color: #0958d9;
+}
+
+/* 文件上传状态 */
+.uploaded-file.uploading {
+  border-color: #1677ff;
+  background: rgba(22, 119, 255, 0.05);
+}
+
+.uploaded-file.uploading .file-icon.loading {
+  color: #1677ff;
+}
+
+.uploaded-file.error {
+  border-color: #ff4d4f;
+  background: rgba(255, 77, 79, 0.05);
+}
+
+.uploaded-file.error .file-icon.error {
+  color: #ff4d4f;
+}
+
+.uploaded-file.done {
+  border-color: #52c41a;
+}
+
+.uploaded-file.done .file-icon {
+  color: #52c41a;
+}
+
+.uploaded-file .file-size {
+  font-size: 11px;
+  color: #999;
+  margin-left: 4px;
+}
