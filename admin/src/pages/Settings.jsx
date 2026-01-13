@@ -5,13 +5,15 @@ import {
   Input,
   Button,
   Divider,
-  Typography,
+
   message,
   Space,
   Avatar,
   Tabs,
   Alert,
-  Spin
+  Spin,
+  Radio,
+  Typography
 } from 'antd';
 import {
   UserOutlined,
@@ -52,7 +54,8 @@ const Settings = () => {
           tavily_api_key: res.data.tavily_api_key?.value || '',
           serper_api_key: res.data.serper_api_key?.value || '',
           bocha_api_key: res.data.bocha_api_key?.value || '',
-          bing_api_key: res.data.bing_api_key?.value || ''
+          bing_api_key: res.data.bing_api_key?.value || '',
+          search_provider: res.data.search_provider?.value || 'auto'
         });
       }
     } catch (error) {
@@ -89,7 +92,8 @@ const Settings = () => {
         tavily_api_key: { value: values.tavily_api_key || '', type: 'string', group: 'search', description: 'Tavily搜索API密钥' },
         serper_api_key: { value: values.serper_api_key || '', type: 'string', group: 'search', description: 'Serper(Google)搜索API密钥' },
         bocha_api_key: { value: values.bocha_api_key || '', type: 'string', group: 'search', description: '博查搜索API密钥' },
-        bing_api_key: { value: values.bing_api_key || '', type: 'string', group: 'search', description: 'Bing搜索API密钥' }
+        bing_api_key: { value: values.bing_api_key || '', type: 'string', group: 'search', description: 'Bing搜索API密钥' },
+        search_provider: { value: values.search_provider || 'auto', type: 'string', group: 'search', description: '默认搜索引擎提供商' }
       };
 
       const res = await updateSettings({ settings });
@@ -209,11 +213,13 @@ const Settings = () => {
     >
       <Alert
         message="配置联网搜索功能"
-        description="配置以下任一搜索API后，用户端开启联网搜索时将使用真实的网络搜索结果。优先级：Tavily > Serper > 博查 > Bing > DuckDuckGo（免费但功能有限）"
+        description="配置以下任一搜索API后，用户端开启联网搜索时将使用真实的网络搜索结果。优先级：Tavily &gt; Serper &gt; 博查 &gt; Bing &gt; DuckDuckGo（免费但功能有限）"
         type="info"
         showIcon
         style={{ marginBottom: 24 }}
       />
+
+
 
       <Spin spinning={searchLoading}>
         <Form
@@ -221,7 +227,24 @@ const Settings = () => {
           layout="vertical"
           onFinish={handleSaveSearchSettings}
           style={{ maxWidth: 600 }}
+          initialValues={{ search_provider: 'auto' }}
         >
+          <Form.Item
+            name="search_provider"
+            label="🔍 默认搜索引擎"
+            tooltip="选择用户端联网搜索时默认使用的搜索引擎"
+          >
+            <Radio.Group optionType="button" buttonStyle="solid">
+              <Radio.Button value="auto">自动 (按优先级)</Radio.Button>
+              <Radio.Button value="tavily">Tavily</Radio.Button>
+              <Radio.Button value="serper">Google</Radio.Button>
+              <Radio.Button value="bocha">博查 (国内)</Radio.Button>
+              <Radio.Button value="bing">Bing</Radio.Button>
+              <Radio.Button value="duckduckgo">DuckDuckGo</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+
+          <Divider style={{ margin: '16px 0' }} />
           <Form.Item
             name="tavily_api_key"
             label={

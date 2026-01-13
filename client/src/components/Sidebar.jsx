@@ -7,11 +7,13 @@ import {
   DeleteOutlined,
   SearchOutlined,
   UserOutlined,
-  ThunderboltOutlined
+  ThunderboltOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 import useChatStore from '../stores/chatStore';
 import { getConversations, createConversation, deleteConversation } from '../api/chat';
 import { getAgents, createPersonalAgent, deleteAgent, generateAgentPrompt } from '../api/agent';
+import agentChatIcon from '../assets/agent_chat_icon.png';
 import './Sidebar.css';
 
 const { TextArea } = Input;
@@ -218,36 +220,35 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       {/* 系统Logo和名称 */}
-      <div className="sidebar-brand">
-        <RobotOutlined className="brand-icon" />
-        <span className="brand-name">企业AI助手</span>
-      </div>
-
-      {/* 新建对话按钮 */}
+      {/* Header / Brand */}
       <div className="sidebar-header">
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          className="new-chat-btn"
-          onClick={handleNewChat}
-        >
-          新建对话
-        </Button>
+        {/* <RobotOutlined className="brand-icon" /> */}
+        <span className="brand-name">SAGA AI</span>
       </div>
 
-      {/* 模式切换标签 */}
+      {/* New Chat Button */}
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        className="new-chat-btn"
+        onClick={handleNewChat}
+      >
+        New Chat
+      </Button>
+
+      {/* Mode Toggles */}
       <div className="sidebar-tabs">
         <div 
           className={`sidebar-tab ${sidebarMode === 'chat' ? 'active' : ''}`}
           onClick={() => setSidebarMode('chat')}
         >
-          <MessageOutlined /> 对话
+          <MessageOutlined /> Chats
         </div>
         <div 
           className={`sidebar-tab ${sidebarMode === 'agents' ? 'active' : ''}`}
           onClick={() => setSidebarMode('agents')}
         >
-          <RobotOutlined /> 助手
+          <RobotOutlined /> Agents
         </div>
       </div>
 
@@ -261,7 +262,8 @@ const Sidebar = () => {
         />
       </div>
 
-      {/* 列表内容 */}
+      {/* List Content */}
+      <div className="section-header">History</div>
       <div className="sidebar-list">
         {loading ? (
           <div className="sidebar-loading">
@@ -278,7 +280,13 @@ const Sidebar = () => {
               >
                 <div className="conv-icon-wrapper">
                   {conv.agent ? (
-                    <RobotOutlined className="conv-icon agent-icon" style={{ color: '#1677ff' }} />
+                    // Use generated image for Agent conversations
+                    <img
+                      src={agentChatIcon}
+                      alt="Agent"
+                      className="conv-icon-img"
+                      style={{ width: 24, height: 24, borderRadius: 6 }}
+                    />
                   ) : (
                     <MessageOutlined className="conv-icon" />
                   )}
@@ -375,6 +383,18 @@ const Sidebar = () => {
             </div>
           </>
         )}
+      </div>
+
+      {/* Footer / User Profile */}
+      <div className="sidebar-footer">
+        <div className="footer-item" onClick={() => message.info('Settings clicked')}>
+          <SettingOutlined />
+          <span>Settings</span>
+        </div>
+        <div className="footer-item" onClick={() => message.info('Profile clicked')}>
+          <UserOutlined />
+          <span>Profile</span>
+        </div>
       </div>
 
       {/* 创建个人助手Modal */}

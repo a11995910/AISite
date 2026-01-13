@@ -1,138 +1,140 @@
 .chat-input {
-  max-width: 900px;
+  width: 100%;
+  max-width: 800px;
   margin: 0 auto;
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
-  overflow: hidden;
+  /* Glassmorphism Effect */
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  border-radius: 16px;
+  padding: 8px;
+  transition: all 0.2s;
+  position: relative;
 }
 
-.input-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+/* Light theme input */
+:root[data-theme='light'] .chat-input {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
 }
 
-.toolbar-left {
-  display: flex;
-  gap: 4px;
+.chat-input:focus-within {
+  background: rgba(40, 40, 40, 0.7);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-.toolbar-btn {
-  color: #999;
-  width: 32px;
-  height: 32px;
-}
 
-.toolbar-btn:hover {
-  color: #1677ff;
-  background: rgba(22, 119, 255, 0.1);
-}
 
-.toolbar-btn.active {
-  color: #1677ff;
-  background: rgba(22, 119, 255, 0.15);
-}
-
-.toolbar-right {
-  display: flex;
-  gap: 8px;
-}
-
-.toolbar-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.toolbar-tag.web {
-  background: rgba(17, 153, 142, 0.1);
-  color: #11998e;
-}
-
-.toolbar-tag.kb {
-  background: rgba(22, 119, 255, 0.1);
-  color: #1677ff;
-}
-
+/* Input Area */
 .input-area {
   display: flex;
   align-items: flex-end;
-  padding: 12px;
   gap: 12px;
+  padding: 8px 12px;
 }
 
 .input-textarea {
   flex: 1;
+  background: transparent;
   border: none;
-  resize: none;
-  font-size: 15px;
+  color: var(--text-primary);
+  font-size: 16px;
   line-height: 1.5;
   padding: 8px 0;
+  resize: none;
+  max-height: 200px;
 }
 
 .input-textarea:focus {
   box-shadow: none;
 }
 
+.input-textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Toolbar */
+.input-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  padding-top: 4px;
+}
+
+.toolbar-left {
+  display: flex;
+  padding: 4px;
+  gap: 8px;
+}
+
+.toolbar-btn {
+  color: var(--text-secondary);
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+:root[data-theme='light'] .toolbar-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.toolbar-btn.active {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.15);
+}
+
 .send-btn {
+  border-radius: 20px;
   height: 40px;
-  padding: 0 20px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+  padding: 0 24px;
+  font-weight: 600;
+  background: var(--accent-gradient);
   border: none;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s;
 }
 
 .send-btn:hover {
-  background: linear-gradient(135deg, #4096ff 0%, #0958d9 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
 .send-btn:disabled {
-  background: #d9d9d9;
-  color: #999;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  box-shadow: none;
 }
 
-/* 知识库弹出框 */
-.kb-popover {
-  min-width: 180px;
-}
-
-.kb-title {
-  font-weight: 500;
-  margin-bottom: 12px;
-  color: #333;
-}
-
-.kb-item {
-  padding: 6px 0;
-}
-
-.kb-item:hover {
-  background: #f5f5f5;
-  border-radius: 4px;
-}
-
-.kb-empty {
-  color: #999;
-  font-size: 13px;
-  text-align: center;
-  padding: 12px 0;
-}
-
-/* 上传文件预览 */
+/* Uploaded Files */
 .uploaded-files {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 0 8px 8px;
+  padding: 0 4px 8px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #f0f0f0;
+}
+
+:root[data-theme='light'] .uploaded-files {
+  border-bottom-color: rgba(0, 0, 0, 0.05);
 }
 
 .uploaded-file {
@@ -140,99 +142,169 @@
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
-  color: #333;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
 }
 
-.uploaded-file .file-icon {
-  color: #1677ff;
-  font-size: 14px;
+:root[data-theme='light'] .uploaded-file {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
-.uploaded-file .file-name {
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Mode Switch (Segmented) */
+.mode-switch {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 3px !important;
+  height: auto !important;
 }
 
-.uploaded-file .file-remove {
-  color: #999;
-  cursor: pointer;
-  font-size: 12px;
-  transition: color 0.2s;
+:root[data-theme='light'] .mode-switch {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-.uploaded-file .file-remove:hover {
-  color: #ff4d4f;
+/* Segmented item */
+.mode-switch .ant-segmented-item {
+  color: var(--text-tertiary) !important;
+  transition: all 0.2s !important;
+  padding: 4px 12px !important;
+  min-height: 28px !important;
+  line-height: 20px !important;
 }
 
-/* 模式切换 */
+.mode-switch .ant-segmented-item-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 20px !important;
+  line-height: 20px !important;
+}
+
+.mode-switch .ant-segmented-item:hover {
+  color: var(--text-secondary) !important;
+}
+
+/* Segmented item - 选中状态的基础样式 */
+.mode-switch .ant-segmented-item-selected {
+  color: var(--text-primary) !important;
+}
+
+/* Segmented thumb (active indicator) - 默认状态 (对话模式) */
+.mode-switch .ant-segmented-thumb {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 7px !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.3s ease,
+              box-shadow 0.3s ease !important;
+}
+
+:root[data-theme='light'] .mode-switch .ant-segmented-thumb {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 绘画模式选中时显示彩色背景 - 使用mode类选择器 */
+.mode-switch.image-mode .ant-segmented-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 0 0 20px rgba(240, 147, 251, 0.3) !important;
+}
+
+:root[data-theme='light'] .mode-switch.image-mode .ant-segmented-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35), 0 0 20px rgba(240, 147, 251, 0.25) !important;
+}
+
+
+/* Toolbar divider */
 .toolbar-divider {
   width: 1px;
-  height: 20px;
-  background: #e8e8e8;
-  margin: 0 8px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
 }
 
-.mode-switch {
-  background: #f0f0f0;
-  border-radius: 6px;
+:root[data-theme='light'] .toolbar-divider {
+  background: rgba(0, 0, 0, 0.1);
 }
 
-.mode-switch .ant-segmented-item {
-  padding: 2px 8px;
+/* Web Search Popover */
+.web-search-popover {
+  min-width: 280px;
+  padding: 4px;
 }
 
-.mode-switch.chat-mode .ant-segmented-item-selected {
-  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
-  color: #fff;
+.web-search-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
 }
 
-.mode-switch.image-mode .ant-segmented-item-selected {
-  background: linear-gradient(135deg, rgba(252, 70, 107, 0.8) 0%, rgba(63, 94, 251, 0.8) 100%);
-  color: #fff;
-  backdrop-filter: blur(4px);
+:root[data-theme='light'] .web-search-header {
+  background: rgba(0, 0, 0, 0.03);
 }
 
-/* 绘画模式标签 */
-.toolbar-tag.image {
-  background: rgba(9, 88, 217, 0.1);
-  color: #0958d9;
+.web-search-header:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
-/* 文件上传状态 */
-.uploaded-file.uploading {
-  border-color: #1677ff;
-  background: rgba(22, 119, 255, 0.05);
+:root[data-theme='light'] .web-search-header:hover {
+  background: rgba(0, 0, 0, 0.06);
 }
 
-.uploaded-file.uploading .file-icon.loading {
-  color: #1677ff;
+.web-search-header .header-icon {
+  font-size: 20px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
-.uploaded-file.error {
-  border-color: #ff4d4f;
-  background: rgba(255, 77, 79, 0.05);
+.web-search-header .header-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.uploaded-file.error .file-icon.error {
-  color: #ff4d4f;
+.web-search-header .header-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.3;
 }
 
-.uploaded-file.done {
-  border-color: #52c41a;
+.web-search-header .header-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.3;
 }
 
-.uploaded-file.done .file-icon {
-  color: #52c41a;
+.web-search-header .web-switch {
+  flex-shrink: 0;
 }
 
-.uploaded-file .file-size {
-  font-size: 11px;
-  color: #999;
-  margin-left: 4px;
+/* Ant Design Switch 自定义样式 */
+.web-switch {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+
+.web-switch.ant-switch-checked {
+  background: #1890ff !important;
+}
+
+:root[data-theme='light'] .web-switch {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+
+:root[data-theme='light'] .web-switch.ant-switch-checked {
+  background: #1890ff !important;
 }

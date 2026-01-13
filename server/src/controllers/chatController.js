@@ -689,6 +689,14 @@ async function performWebSearch(query, engine = 'auto') {
 
     // 从数据库获取搜索API配置
     const searchConfig = await getSearchApiConfig();
+    
+    // 获取指定的默认搜索引擎
+    const defaultEngine = searchConfig.search_provider;
+    
+    // 如果用户没有明确指定某种引擎(engine='auto')，且后台配置了默认引擎，则使用默认引擎
+    if ((!engine || engine === 'auto') && defaultEngine && defaultEngine !== 'auto') {
+      engine = defaultEngine;
+    }
 
     // 定义搜索引擎优先级（只包含后台可配置的引擎）
     const enginePriority = ['tavily', 'serper', 'bocha', 'bing'];

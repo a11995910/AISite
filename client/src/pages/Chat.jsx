@@ -288,9 +288,6 @@ const ChatPage = () => {
     return (
       <div className="chat-page">
         <div className="chat-empty">
-          <div className="empty-icon">
-            <RobotOutlined />
-          </div>
           <h2>开始新对话</h2>
           <p>向AI助手提问，获取智能回答</p>
           {currentAgent && (

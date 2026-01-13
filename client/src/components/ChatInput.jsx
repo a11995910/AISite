@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Input, Button, Tooltip, Popover, Checkbox, Badge, Upload, message, Segmented, Dropdown, Spin } from 'antd';
+import { Input, Button, Tooltip, Popover, Checkbox, Badge, Upload, message, Segmented, Switch } from 'antd';
 import {
   SendOutlined,
   PaperClipOutlined,
@@ -48,7 +48,7 @@ const ChatInput = ({ onSend, disabled }) => {
   // 切换对话时重置输入状态
   useEffect(() => {
     setValue('');
-    setMode('chat');
+    setMode('chat');  // 重置为对话模式
     setUploadedFiles([]);
   }, [currentConversationId]);
 
@@ -214,6 +214,26 @@ const ChatInput = ({ onSend, disabled }) => {
   };
 
   /**
+   * 联网搜索弹窗内容
+   */
+  const webSearchContent = (
+    <div className="web-search-popover">
+      <div className="web-search-header">
+        <GlobalOutlined className="header-icon" />
+        <div className="header-text">
+          <span className="header-title">联网模式</span>
+          <span className="header-hint">关闭后停用互联网资料</span>
+        </div>
+        <Switch
+          checked={useWeb}
+          onChange={toggleUseWeb}
+          className="web-switch"
+        />
+      </div>
+    </div>
+  );
+
+  /**
    * 知识库选择内容
    */
   const knowledgeBaseContent = (
@@ -294,40 +314,21 @@ const ChatInput = ({ onSend, disabled }) => {
           </Tooltip>
 
           {/* 联网搜索 */}
-          <Dropdown
-            menu={{
-              items: searchEngines.map(engine => ({
-                key: engine.key,
-                label: (
-                  <span>
-                    {engine.icon} {engine.label}
-                    {searchEngine === engine.key && ' ✓'}
-                  </span>
-                ),
-                onClick: () => {
-                  setSearchEngine(engine.key);
-                  if (!useWeb) toggleUseWeb();
-                }
-              })),
-            }}
-            trigger={['click']}
+          <Popover
+            content={webSearchContent}
+            trigger="click"
             placement="topLeft"
           >
-            <Tooltip title={useWeb ? `联网搜索 (${searchEngines.find(e => e.key === searchEngine)?.label})` : '开启联网搜索'}>
-              <Button
-                type="text"
-                icon={<GlobalOutlined />}
-                onClick={(e) => {
-                  // 如果已开启联网，点击按钮关闭
-                  if (useWeb) {
-                    e.stopPropagation();
-                    toggleUseWeb();
-                  }
-                }}
-                className={`toolbar-btn ${useWeb ? 'active' : ''}`}
-              />
+            <Tooltip title="联网搜索">
+              <Badge dot={useWeb} offset={[-2, 2]}>
+                <Button
+                  type="text"
+                  icon={<GlobalOutlined />}
+                  className={`toolbar-btn ${useWeb ? 'active' : ''}`}
+                />
+              </Badge>
             </Tooltip>
-          </Dropdown>
+          </Popover>
 
           {/* 知识库 */}
           <Popover
@@ -367,11 +368,6 @@ const ChatInput = ({ onSend, disabled }) => {
         </div>
 
         <div className="toolbar-right">
-          {useWeb && (
-            <span className="toolbar-tag web">
-              <GlobalOutlined /> {searchEngines.find(e => e.key === searchEngine)?.label || '联网搜索'}
-            </span>
-          )}
           {selectedKnowledgeBaseIds.length > 0 && (
             <span className="toolbar-tag kb">
               <DatabaseOutlined /> {selectedKnowledgeBaseIds.length}个知识库
