@@ -53,6 +53,11 @@ const ChatPage = () => {
   const [streamingContent, setStreamingContent] = useState('');
   const [currentSearchInfo, setCurrentSearchInfo] = useState(null);
   const [agentPromptCollapsed, setAgentPromptCollapsed] = useState(true);
+  /*
+   * 标记是否是新创建的对话（本地创建）
+   * 用于防止新建对话后立即加载消息导致乐观更新的消息被覆盖
+   */
+  const isNewConversation = useRef(false);
   
   const { user } = useUserStore();
   const {
@@ -77,6 +82,11 @@ const ChatPage = () => {
   // 加载消息历史
   useEffect(() => {
     if (currentConversationId) {
+      // 如果是刚创建的新对话，跳过加载消息（避免覆盖刚发送的消息）
+      if (isNewConversation.current) {
+        isNewConversation.current = false;
+        return;
+      }
       loadMessages();
     }
   }, [currentConversationId]);
@@ -144,6 +154,8 @@ const ChatPage = () => {
         if (res.code === 200) {
           conversationId = res.data.id;
           addConversation(res.data);
+          // 标记为新对话，useEffect中会跳过加载消息
+          isNewConversation.current = true;
           setCurrentConversation(res.data.id);
         } else {
           return;

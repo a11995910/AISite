@@ -353,36 +353,36 @@ const ChatMessage = ({
             )}
           </div>
 
-          {/* 操作按钮 */}
-          {!isUser && content && !isStreaming && (
+          {/* 操作按钮和推荐追问 */}
+          {!isUser && !isStreaming && (
             <div className="message-actions">
-              <Tooltip title={copied ? '已复制' : '复制'}>
-                <Button 
-                  type="text" 
-                  size="small"
-                  icon={copied ? <CheckOutlined /> : <CopyOutlined />}
-                  onClick={handleCopy}
-                />
-              </Tooltip>
-            </div>
-          )}
-
-          {/* 推荐追问 */}
-          {!isUser && message.suggestions && message.suggestions.length > 0 && !isStreaming && (
-            <div className="message-suggestions">
-              <div className="suggestions-title">你可能想问：</div>
-              <div className="suggestions-list">
-                {message.suggestions.map((suggestion, index) => (
-                  <Button
-                    key={index}
-                    type="text"
-                    className="suggestion-btn"
-                    onClick={() => onSuggestionClick(suggestion)}
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
+              {content && (
+                <Tooltip title={copied ? '已复制' : '复制'}>
+                  <Button 
+                    type="text" 
+                    size="small"
+                    className="action-btn"
+                    icon={copied ? <CheckOutlined /> : <CopyOutlined />}
+                    onClick={handleCopy}
+                  />
+                </Tooltip>
+              )}
+              
+              {/* 推荐追问 - 直接跟在复制按钮后面 */}
+              {message.suggestions && message.suggestions.length > 0 && (
+                <div className="suggestions-list">
+                  {message.suggestions.map((suggestion, index) => (
+                    <Button
+                      key={index}
+                      size="small"
+                      className="suggestion-btn"
+                      onClick={() => onSuggestionClick(suggestion)}
+                    >
+                      {suggestion}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

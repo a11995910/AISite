@@ -1,9 +1,35 @@
-/* Login.css */
+/* Login.css - 现代玻璃拟态风格 */
 .login-container {
   min-height: 100vh;
   display: flex;
-  background: #fff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
   overflow: hidden;
+}
+
+/* 动态背景装饰 */
+.login-container::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  top: -200px;
+  right: -100px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.login-container::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  bottom: -150px;
+  left: -100px;
+  animation: float 8s ease-in-out infinite reverse;
 }
 
 /* 左侧视觉区 */
@@ -13,12 +39,14 @@
   background-position: center;
   position: relative;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
   padding: 60px;
 }
 
 .visual-overlay {
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
   position: absolute;
   top: 0;
   left: 0;
@@ -26,52 +54,68 @@
   bottom: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
   padding: 60px;
 }
 
 .brand-intro {
   color: #fff;
-  animation: fadeIn Up 0.8s ease-out;
+  text-align: center;
+  animation: fadeInUp 0.8s ease-out;
 }
 
 .brand-icon {
-  font-size: 48px;
-  color: #1677ff;
+  font-size: 72px;
+  color: #fff;
   margin-bottom: 24px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
 }
 
 .brand-title {
-  font-size: 40px;
+  font-size: 48px;
   font-weight: 700;
-  margin: 0 0 12px 0;
+  margin: 0 0 16px 0;
   color: #fff;
-  letter-spacing: -0.5px;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
 }
 
 .brand-slogan {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.95);
   font-weight: 300;
   margin: 0;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.2);
 }
 
-/* 右侧表单区 */
+/* 右侧表单区 - 玻璃拟态 */
 .login-form-wrapper {
   width: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  padding: 40px;
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  padding: 50px;
   position: relative;
   z-index: 10;
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+/* 深色模式适配 */
+[data-theme='dark'] .login-form-wrapper {
+  background: rgba(26, 32, 44, 0.95);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .form-content {
   width: 100%;
-  max-width: 360px;
+  max-width: 380px;
 }
 
 .form-header {
@@ -86,15 +130,43 @@
   margin-bottom: 24px;
 }
 
+.login-form-forgot {
+  color: #6366f1;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.login-form-forgot:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
 .form-footer {
   text-align: center;
   margin-top: 24px;
 }
 
+.form-footer a {
+  color: #6366f1;
+  font-weight: 500;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+
+.form-footer a:hover {
+  color: #4f46e5;
+}
+
 /* 响应式适配 */
 @media (max-width: 768px) {
+  .login-container::before,
+  .login-container::after {
+    display: none;
+  }
+
   .login-container {
     flex-direction: column;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
 
   .login-visual {
@@ -102,59 +174,67 @@
     height: 200px;
     padding: 24px;
   }
-  
+
   .visual-overlay {
     padding: 24px;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, rgba(22, 119, 255, 0.9), rgba(9, 88, 217, 0.9));
   }
-  
+
   .brand-intro {
     text-align: center;
   }
-  
+
   .brand-icon {
-    font-size: 32px;
-    margin-bottom: 12px;
-    color: #fff;
+    font-size: 48px;
+    margin-bottom: 16px;
   }
-  
+
   .brand-title {
-    font-size: 24px;
-    margin-bottom: 4px;
+    font-size: 32px;
+    margin-bottom: 8px;
   }
-  
+
   .brand-slogan {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .login-form-wrapper {
     width: 100%;
     flex: 1;
-    padding: 24px;
-    box-shadow: none;
-    align-items: flex-start;
+    padding: 32px 24px;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   }
-  
+
   .form-content {
     max-width: 100%;
-    margin-top: 20px;
+    margin-top: 0;
   }
-  
+
   .form-header {
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     text-align: center;
   }
 }
 
+/* 动画定义 */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotate(5deg);
   }
 }
