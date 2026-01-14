@@ -76,17 +76,17 @@ const getUsage = async (req, res, next) => {
       where,
       attributes: [
         'userId',
-        [fn('SUM', col('input_tokens')), 'inputTokens'],
-        [fn('SUM', col('output_tokens')), 'outputTokens'],
-        [fn('SUM', col('total_tokens')), 'totalTokens'],
-        [fn('COUNT', col('id')), 'requestCount']
+        [fn('SUM', col('usage_logs.input_tokens')), 'inputTokens'],
+        [fn('SUM', col('usage_logs.output_tokens')), 'outputTokens'],
+        [fn('SUM', col('usage_logs.total_tokens')), 'totalTokens'],
+        [fn('COUNT', col('usage_logs.id')), 'requestCount']
       ],
       include: [{
         model: User,
         as: 'user',
         attributes: ['id', 'name', 'username']
       }],
-      group: ['userId'],
+      group: ['usage_logs.user_id', 'user.id'],
       order: [[literal('totalTokens'), 'DESC']],
       limit: 10
     });
@@ -96,15 +96,15 @@ const getUsage = async (req, res, next) => {
       where,
       attributes: [
         'modelId',
-        [fn('SUM', col('total_tokens')), 'totalTokens'],
-        [fn('COUNT', col('id')), 'requestCount']
+        [fn('SUM', col('usage_logs.total_tokens')), 'totalTokens'],
+        [fn('COUNT', col('usage_logs.id')), 'requestCount']
       ],
       include: [{
         model: Model,
         as: 'model',
         attributes: ['id', 'name', 'modelId']
       }],
-      group: ['modelId'],
+      group: ['usage_logs.model_id', 'model.id'],
       order: [[literal('totalTokens'), 'DESC']]
     });
 
