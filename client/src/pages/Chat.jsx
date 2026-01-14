@@ -52,6 +52,7 @@ const ChatPage = () => {
   const messagesEndRef = useRef(null);
   const [streamingContent, setStreamingContent] = useState('');
   const [currentSearchInfo, setCurrentSearchInfo] = useState(null);
+  const [currentKnowledgeInfo, setCurrentKnowledgeInfo] = useState(null);
   const [agentPromptCollapsed, setAgentPromptCollapsed] = useState(true);
   /*
    * 标记是否是新创建的对话（本地创建）
@@ -200,6 +201,7 @@ const ChatPage = () => {
     setSending(true);
     setStreamingContent('');
     setCurrentSearchInfo(null);
+    setCurrentKnowledgeInfo(null);
 
     try {
       // 使用流式响应
@@ -259,6 +261,10 @@ const ChatPage = () => {
               if (parsed.searchInfo) {
                 // 收到搜索信息
                 setCurrentSearchInfo(parsed.searchInfo);
+              }
+              if (parsed.knowledgeInfo) {
+                // 收到知识库信息
+                setCurrentKnowledgeInfo(parsed.knowledgeInfo);
               }
               if (parsed.conversationTitle) {
                 // 收到AI生成的对话标题，更新对话列表
@@ -354,6 +360,7 @@ const ChatPage = () => {
                 onSuggestionClick={handleSuggestionClick}
                 userName={user?.name}
                 searchInfo={index === messages.length - 1 ? currentSearchInfo : msg.searchInfo}
+                knowledgeInfo={index === messages.length - 1 ? currentKnowledgeInfo : msg.knowledgeInfo}
               />
             ))}
             <div ref={messagesEndRef} />

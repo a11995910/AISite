@@ -12,7 +12,8 @@ import {
   DownOutlined,
   GlobalOutlined,
   LinkOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  DatabaseOutlined
 } from '@ant-design/icons';
 import { useState, useMemo } from 'react';
 import './ChatMessage.css';
@@ -85,7 +86,8 @@ const ChatMessage = ({
   streamingContent,
   onSuggestionClick,
   userName,
-  searchInfo
+  searchInfo,
+  knowledgeInfo
 }) => {
   const [copied, setCopied] = useState(false);
   const [thinkExpanded, setThinkExpanded] = useState(false);
@@ -216,6 +218,27 @@ const ChatMessage = ({
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* 知识库来源信息 */}
+          {!isUser && knowledgeInfo && knowledgeInfo.sources && knowledgeInfo.sources.length > 0 && (
+            <div className="knowledge-sources">
+              <div className="knowledge-header">
+                <DatabaseOutlined className="knowledge-icon" />
+                <span className="knowledge-title">
+                  已检索 {knowledgeInfo.count} 个知识库内容
+                </span>
+              </div>
+              <div className="knowledge-list">
+                {knowledgeInfo.sources.map((source, index) => (
+                  <div key={index} className="knowledge-item">
+                    <FileTextOutlined className="kb-file-icon" />
+                    <span className="kb-file-name">{source.fileName}</span>
+                    <span className="kb-name">({source.knowledgeBase})</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

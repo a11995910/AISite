@@ -13,21 +13,28 @@ import {
   Typography,
   Switch,
   List,
-  Empty
+  Empty,
+  Upload,
+  Progress
 } from 'antd';
 import { 
   PlusOutlined, 
   EditOutlined, 
   DeleteOutlined,
   BookOutlined,
-  FileOutlined
+  FileOutlined,
+  UploadOutlined,
+  EyeOutlined
 } from '@ant-design/icons';
 import { 
   getKnowledgeBases, 
   createKnowledgeBase, 
   updateKnowledgeBase, 
   deleteKnowledgeBase,
-  getDocuments
+  getDocuments,
+  uploadDocument,
+  getDocumentContent,
+  deleteDocument
 } from '../api/knowledge';
 
 const { Title, Text } = Typography;
@@ -44,6 +51,10 @@ const Knowledge = () => {
   const [docModalVisible, setDocModalVisible] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [docLoading, setDocLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewContent, setPreviewContent] = useState('');
+  const [previewFileName, setPreviewFileName] = useState('');
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -117,9 +128,13 @@ const Knowledge = () => {
   const viewDocuments = async (kb) => {
     setEditingKb(kb);
     setDocModalVisible(true);
+    await loadDocuments(kb.id);
+  };
+
+  const loadDocuments = async (kbId) => {
     setDocLoading(true);
     try {
-      const res = await getDocuments(kb.id);
+      const res = await getDocuments(kbId);
       if (res.code === 200) {
         setDocuments(res.data);
       }
@@ -127,6 +142,65 @@ const Knowledge = () => {
       message.error('获取文档失败');
     } finally {
       setDocLoading(false);
+    }
+  };
+
+  const handleUpload = async (options) => {
+    const { file, onSuccess, onError } = options;
+    
+    if (!editingKb) {
+      message.error('请先选择知识库');
+      onError();
+      return;
+    }
+
+    setUploadLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await uploadDocument(editingKb.id, formData);
+      if (res.code === 200 || res.code === 201) {
+        message.success('上传成功');
+        onSuccess();
+        // 刷新文档列表
+        await loadDocuments(editingKb.id);
+        // 刷新知识库列表（更新文档数）
+        fetchKnowledgeBases();
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (error) {
+      message.error(error.message || '上传失败');
+      onError();
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
+  const handlePreview = async (doc) => {
+    try {
+      const res = await getDocumentContent(editingKb.id, doc.id);
+      if (res.code === 200) {
+        setPreviewFileName(doc.fileName);
+        setPreviewContent(res.data.content || '无内容');
+        setPreviewVisible(true);
+      }
+    } catch (error) {
+      message.error('获取文档内容失败');
+    }
+  };
+
+  const handleDeleteDocument = async (docId) => {
+    try {
+      await deleteDocument(editingKb.id, docId);
+      message.success('删除成功');
+      // 刷新文档列表
+      await loadDocuments(editingKb.id);
+      // 刷新知识库列表（更新文档数）
+      fetchKnowledgeBases();
+    } catch (error) {
+      message.error(error.message || '删除失败');
     }
   };
 
@@ -269,12 +343,32 @@ const Knowledge = () => {
 
       {/* 文档列表弹窗 */}
       <Modal
-        title={`${editingKb?.name || ''} - 文档列表`}
+        title={`${editingKb?.name || ''} - 文档管理`}
         open={docModalVisible}
         onCancel={() => setDocModalVisible(false)}
         footer={null}
-        width={600}
+        width={700}
       >
+        <div style={{ marginBottom: 16 }}>
+          <Upload
+            customRequest={handleUpload}
+            showUploadList={false}
+            accept=".txt,.md,.pdf,.doc,.docx,.xls,.xlsx,.csv,.json"
+            disabled={uploadLoading}
+          >
+            <Button 
+              icon={<UploadOutlined />} 
+              loading={uploadLoading}
+              type="primary"
+            >
+              {uploadLoading ? '上传中...' : '上传文档'}
+            </Button>
+          </Upload>
+          <div style={{ marginTop: 8, color: '#666', fontSize: 12 }}>
+            支持格式：txt、md、pdf、doc、docx、xls、xlsx、csv、json（最大10MB）
+          </div>
+        </div>
+
         {docLoading ? (
           <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
         ) : documents.length > 0 ? (
@@ -282,23 +376,66 @@ const Knowledge = () => {
             dataSource={documents}
             renderItem={doc => (
               <List.Item
-                extra={
-                  <Tag color={statusMap[doc.status]?.color}>
-                    {statusMap[doc.status]?.text}
-                  </Tag>
-                }
+                actions={[
+                  <Button 
+                    type="link" 
+                    size="small"
+                    icon={<EyeOutlined />}
+                    onClick={() => handlePreview(doc)}
+                  >
+                    预览
+                  </Button>,
+                  <Popconfirm
+                    title="确定删除此文档吗？"
+                    onConfirm={() => handleDeleteDocument(doc.id)}
+                  >
+                    <Button type="link" size="small" danger icon={<DeleteOutlined />}>
+                      删除
+                    </Button>
+                  </Popconfirm>
+                ]}
               >
                 <List.Item.Meta
                   avatar={<FileOutlined style={{ fontSize: 24, color: '#1890ff' }} />}
                   title={doc.fileName}
-                  description={`${(doc.fileSize / 1024).toFixed(2)} KB`}
+                  description={
+                    <Space>
+                      <span>{(doc.fileSize / 1024).toFixed(2)} KB</span>
+                      <Tag color={statusMap[doc.status]?.color}>
+                        {statusMap[doc.status]?.text}
+                      </Tag>
+                    </Space>
+                  }
                 />
               </List.Item>
             )}
           />
         ) : (
-          <Empty description="暂无文档" />
+          <Empty description="暂无文档，请上传文档" />
         )}
+      </Modal>
+
+      {/* 文档预览弹窗 */}
+      <Modal
+        title={`预览：${previewFileName}`}
+        open={previewVisible}
+        onCancel={() => setPreviewVisible(false)}
+        footer={null}
+        width={800}
+      >
+        <div style={{ 
+          maxHeight: '60vh', 
+          overflow: 'auto',
+          padding: '16px',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '4px',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          fontFamily: 'monospace',
+          fontSize: '13px'
+        }}>
+          {previewContent}
+        </div>
       </Modal>
     </div>
   );

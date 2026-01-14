@@ -383,6 +383,73 @@ const sendMessageStream = async (req, res, next) => {
       }
     }
     
+    // 处理知识库检索
+    if (knowledgeBaseIds && knowledgeBaseIds.length > 0) {
+      try {
+        const { searchKnowledge } = require('./knowledgeController');
+        
+        // 构建检索请求
+        const searchReq = {
+          body: {
+            knowledgeBaseIds,
+            query: content,
+            limit: 5
+          }
+        };
+        
+        // 模拟res对象用于接收结果
+        let knowledgeResults = null;
+        const mockRes = {
+          status: () => mockRes,
+          json: (data) => {
+            if (data.code === 200) {
+              knowledgeResults = data.data;
+            }
+            return mockRes;
+          }
+        };
+        
+        // 调用检索函数
+        await searchKnowledge(searchReq, mockRes, (err) => {
+          if (err) console.error('知识库检索失败:', err);
+        });
+        
+        // 如果有检索结果，添加到消息上下文
+        if (knowledgeResults && knowledgeResults.length > 0) {
+          let knowledgeContext = '以下是从知识库中检索到的相关内容，请参考这些信息回答用户问题：\n\n';
+          
+          knowledgeResults.forEach((result, index) => {
+            knowledgeContext += `【来源 ${index + 1}】文档：${result.fileName}\n`;
+            knowledgeContext += `知识库：${result.knowledgeBaseName}\n`;
+            result.snippets.forEach(snippet => {
+              knowledgeContext += snippet + '\n\n';
+            });
+          });
+          
+          knowledgeContext += '\n请基于以上知识库内容回答用户问题。如果知识库中的信息能够解答问题，请优先使用知识库信息。';
+          
+          // 在消息列表开头添加知识库上下文
+          messages.unshift({
+            role: 'system',
+            content: knowledgeContext
+          });
+          
+          // 发送知识库信息给前端
+          res.write(`data: ${JSON.stringify({
+            knowledgeInfo: {
+              count: knowledgeResults.length,
+              sources: knowledgeResults.map(r => ({
+                fileName: r.fileName,
+                knowledgeBase: r.knowledgeBaseName
+              }))
+            }
+          })}\n\n`);
+        }
+      } catch (kbError) {
+        console.error('知识库检索错误:', kbError);
+      }
+    }
+    
     // 处理绘画模式
     if (mode === 'image') {
       const imageResult = await generateImage(res, content, req.user.id, agentId);

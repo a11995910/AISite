@@ -43,6 +43,11 @@ const KnowledgeDocument = sequelize.define('knowledge_documents', {
     field: 'file_size',
     comment: '文件大小（字节）'
   },
+  content: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true,
+    comment: '文档解析后的文本内容'
+  },
   status: {
     type: DataTypes.ENUM('pending', 'processing', 'completed', 'failed'),
     defaultValue: 'pending',

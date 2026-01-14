@@ -9,6 +9,7 @@ const ModelProvider = require('./ModelProvider');
 const Model = require('./Model');
 const KnowledgeBase = require('./KnowledgeBase');
 const KnowledgeDocument = require('./KnowledgeDocument');
+const KnowledgeChunk = require('./KnowledgeChunk');
 const Agent = require('./Agent');
 const UsageLog = require('./UsageLog');
 const SystemSetting = require('./SystemSetting');
@@ -27,6 +28,11 @@ ModelProvider.hasMany(Model, { foreignKey: 'providerId', as: 'models' });
 // 知识库文档与知识库的关联
 KnowledgeDocument.belongsTo(KnowledgeBase, { foreignKey: 'knowledgeBaseId', as: 'knowledgeBase' });
 KnowledgeBase.hasMany(KnowledgeDocument, { foreignKey: 'knowledgeBaseId', as: 'documents' });
+
+// 知识库文本块关联
+KnowledgeChunk.belongsTo(KnowledgeDocument, { foreignKey: 'documentId', as: 'document' });
+KnowledgeDocument.hasMany(KnowledgeChunk, { foreignKey: 'documentId', as: 'chunks' });
+KnowledgeChunk.belongsTo(KnowledgeBase, { foreignKey: 'knowledgeBaseId', as: 'knowledgeBase' });
 
 // 知识库所有者关联
 KnowledgeBase.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
@@ -53,6 +59,7 @@ module.exports = {
   Model,
   KnowledgeBase,
   KnowledgeDocument,
+  KnowledgeChunk,
   Agent,
   Conversation,
   Message,

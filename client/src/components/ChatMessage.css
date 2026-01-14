@@ -271,3 +271,73 @@
   border-color: rgba(59, 130, 246, 0.3) !important;
   color: #3b82f6 !important;
 }
+
+/* 知识库来源样式 */
+.knowledge-sources {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.knowledge-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.knowledge-icon {
+  color: #8b5cf6;
+  font-size: 16px;
+}
+
+.knowledge-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #a78bfa;
+}
+
+.knowledge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.knowledge-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.kb-file-icon {
+  color: #a78bfa;
+  font-size: 12px;
+}
+
+.kb-file-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.kb-name {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+/* Light theme 知识库样式 */
+:root[data-theme='light'] .knowledge-sources {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+:root[data-theme='light'] .knowledge-item {
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+}
