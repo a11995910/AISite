@@ -17,6 +17,7 @@ import Knowledge from './pages/Knowledge';
 import Agents from './pages/Agents';
 import Statistics from './pages/Statistics';
 import Settings from './pages/Settings';
+import SdkGuide from './pages/SdkGuide';
 
 /**
  * 路由守卫组件
@@ -81,7 +82,10 @@ function App() {
               
               {/* 用量统计 */}
               <Route path="statistics" element={<Statistics />} />
-              
+
+              {/* SDK集成指南 */}
+              <Route path="sdk-guide" element={<SdkGuide />} />
+
               {/* 系统设置 */}
               <Route path="settings" element={<Settings />} />
             </Route>

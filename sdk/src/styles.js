@@ -15,41 +15,57 @@ export function createStyles(config) {
   return `
     /* AI Assistant SDK Styles */
 
-    /* 悬浮按钮 */
+    /* 悬浮按钮 - AI流光风格 */
     .ai-assistant-btn {
       position: fixed;
       ${isRight ? 'right' : 'left'}: 20px;
       bottom: 20px;
-      width: 56px;
-      height: 56px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      background: ${primaryColor};
+      /* 深空极客渐变 */
+      background: linear-gradient(to right, #111111 0%, #7c3aed 100%);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      /* 紫色系复合阴影 */
+      box-shadow:
+        0 8px 20px rgba(124, 58, 237, 0.35),
+        0 0 0 1px rgba(255, 255, 255, 0.15) inset;
       z-index: ${zIndex};
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: none;
       outline: none;
+      /* 呼吸 + 悬浮动画 */
+      animation: ai-float 3s ease-in-out infinite;
     }
 
     .ai-assistant-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .ai-assistant-btn.hidden {
-      transform: scale(0);
-      opacity: 0;
-      pointer-events: none;
+      transform: translateY(-4px) scale(1.05);
+      box-shadow:
+        0 15px 30px rgba(124, 58, 237, 0.5),
+        0 0 0 2px rgba(255, 255, 255, 0.25) inset;
+      animation-play-state: paused;
     }
 
     .ai-assistant-btn svg {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    /* 悬浮 + 呼吸 组合动画 */
+    @keyframes ai-float {
+      0%, 100% {
+        transform: translateY(0);
+        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+      }
+      50% {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 30px rgba(124, 58, 237, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+      }
     }
 
     /* 侧边栏容器 */
@@ -74,13 +90,56 @@ export function createStyles(config) {
       transform: translateX(0);
     }
 
+    /* 拖拽调整宽度手柄 */
+    .ai-assistant-resize-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      cursor: ew-resize;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-assistant-resize-right {
+      left: 0;
+    }
+
+    .ai-assistant-resize-left {
+      right: 0;
+    }
+
+    .ai-resize-line {
+      width: 3px;
+      height: 40px;
+      background: #d1d5db;
+      border-radius: 3px;
+      transition: all 0.2s;
+      opacity: 0;
+    }
+
+    .ai-assistant-resize-handle:hover .ai-resize-line,
+    .ai-assistant-resize-handle.active .ai-resize-line {
+      opacity: 1;
+      background: #7c3aed;
+      height: 60px;
+    }
+
+    .ai-assistant-resize-handle.active .ai-resize-line {
+      background: #7c3aed;
+      box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+    }
+
     /* 侧边栏头部 */
     .ai-assistant-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      background: ${primaryColor};
+      /* 与悬浮球保持一致的深空渐变 */
+      background: linear-gradient(to right, #111111 0%, #7c3aed 100%);
       color: white;
       flex-shrink: 0;
     }
@@ -166,18 +225,7 @@ export function createStyles(config) {
       }
     }
 
-    /* 暗色模式支持 */
-    @media (prefers-color-scheme: dark) {
-      .ai-assistant-sidebar {
-        background: #1f1f1f;
-        box-shadow: ${isRight ? '-4px' : '4px'} 0 20px rgba(0, 0, 0, 0.3);
-      }
-
-      .ai-assistant-iframe-container {
-        background: #141414;
-      }
-    }
-
+    /* 暗色模式支持 - 已移除 */
     /* 头部操作按钮 */
     .ai-assistant-header-actions {
       display: flex;
@@ -246,22 +294,7 @@ export function createStyles(config) {
       opacity: 1;
     }
 
-    /* 暗色模式划词菜单 */
-    @media (prefers-color-scheme: dark) {
-      .ai-selection-menu {
-        background: #2a2a2a;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      }
-
-      .ai-selection-btn {
-        color: #e0e0e0;
-      }
-
-      .ai-selection-btn:hover {
-        background: ${primaryColor};
-        color: white;
-      }
-    }
+    /* 暗色模式划词菜单 - 已移除 */
 
     /* 动画 */
     @keyframes ai-assistant-pulse {

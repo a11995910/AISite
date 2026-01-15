@@ -83,7 +83,7 @@ class AIAssistant {
     btn.className = 'ai-assistant-btn';
     btn.innerHTML = this.config.buttonIcon || `
       <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        <path d="M19 11h-1.5c-.4 0-.8-.3-.9-.7l-.8-4.3c-.1-.5-.8-.5-.9 0l-.8 4.3c-.1.4-.5.7-.9.7H12c-.5 0-.5.8 0 .8h1.4c.4 0 .8.3.9.7l.8 4.3c.1.5.8.5.9 0l.8-4.3c.1-.4.5-.7.9-.7H19c.5 0 .5-.8 0-.8zm-8.5-2H9c-.4 0-.8-.3-.9-.7l-1-5.8c-.1-.5-.8-.5-.9 0l-1 5.8c-.1.4-.5.7-.9.7H2.5c-.5 0-.5.8 0 .8H4c.4 0 .8.3.9.7l1 5.8c.1.5.8.5.9 0l1-5.8c.1-.4.5-.7.9-.7h1.5c.5 0 .5-.8 0-.8z"/>
       </svg>
     `;
     btn.title = 'AI 助手';
@@ -97,12 +97,22 @@ class AIAssistant {
     sidebar.id = 'ai-assistant-sidebar';
     sidebar.className = `ai-assistant-sidebar ai-assistant-sidebar-${this.config.position}`;
 
+    // 设置初始宽度
+    this.sidebarWidth = parseInt(this.config.width) || 400;
+    sidebar.style.width = this.sidebarWidth + 'px';
+
+    // 创建拖拽调整宽度的手柄
+    const resizeHandle = document.createElement('div');
+    resizeHandle.className = `ai-assistant-resize-handle ai-assistant-resize-${this.config.position}`;
+    resizeHandle.innerHTML = '<div class="ai-resize-line"></div>';
+    this._setupResizeHandle(resizeHandle, sidebar);
+
     const header = document.createElement('div');
     header.className = 'ai-assistant-header';
     header.innerHTML = `
       <div class="ai-assistant-title">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+          <path d="M19 11h-1.5c-.4 0-.8-.3-.9-.7l-.8-4.3c-.1-.5-.8-.5-.9 0l-.8 4.3c-.1.4-.5.7-.9.7H12c-.5 0-.5.8 0 .8h1.4c.4 0 .8.3.9.7l.8 4.3c.1.5.8.5.9 0l.8-4.3c.1-.4.5-.7.9-.7H19c.5 0 .5-.8 0-.8zm-8.5-2H9c-.4 0-.8-.3-.9-.7l-1-5.8c-.1-.5-.8-.5-.9 0l-1 5.8c-.1.4-.5.7-.9.7H2.5c-.5 0-.5.8 0 .8H4c.4 0 .8.3.9.7l1 5.8c.1.5.8.5.9 0l1-5.8c.1-.4.5-.7.9-.7h1.5c.5 0 .5-.8 0-.8z"/>
         </svg>
         <span>AI 助手</span>
       </div>
@@ -138,11 +148,72 @@ class AIAssistant {
     this.iframe.setAttribute('allow', 'clipboard-write');
 
     iframeContainer.appendChild(this.iframe);
+    sidebar.appendChild(resizeHandle);
     sidebar.appendChild(header);
     sidebar.appendChild(iframeContainer);
 
     document.body.appendChild(sidebar);
     this.sidebar = sidebar;
+  }
+
+  /**
+   * 设置拖拽调整宽度
+   */
+  _setupResizeHandle(handle, sidebar) {
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+    const isRight = this.config.position === 'right';
+    const minWidth = 320;
+    const maxWidth = Math.min(800, window.innerWidth * 0.8);
+
+    handle.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = this.sidebarWidth;
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none';
+      // 禁用iframe交互
+      this.iframe.style.pointerEvents = 'none';
+      handle.classList.add('active');
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+
+      const diff = isRight ? (startX - e.clientX) : (e.clientX - startX);
+      let newWidth = startWidth + diff;
+      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+
+      this.sidebarWidth = newWidth;
+      sidebar.style.width = newWidth + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        this.iframe.style.pointerEvents = '';
+        handle.classList.remove('active');
+        // 保存宽度到localStorage
+        try {
+          localStorage.setItem('ai-assistant-width', this.sidebarWidth.toString());
+        } catch (e) {}
+      }
+    });
+
+    // 恢复保存的宽度
+    try {
+      const savedWidth = localStorage.getItem('ai-assistant-width');
+      if (savedWidth) {
+        const w = parseInt(savedWidth);
+        if (w >= minWidth && w <= maxWidth) {
+          this.sidebarWidth = w;
+          sidebar.style.width = w + 'px';
+        }
+      }
+    } catch (e) {}
   }
 
   _createOverlay() {

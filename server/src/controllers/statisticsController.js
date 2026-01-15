@@ -26,7 +26,8 @@ const getOverview = async (req, res, next) => {
       totalModels,
       totalAgents,
       todayTokens,
-      totalTokens
+      totalTokens,
+      sdkTokens
     ] = await Promise.all([
       User.count({ where: { status: 1 } }),
       Model.count({ where: { isActive: 1 } }),
@@ -36,7 +37,8 @@ const getOverview = async (req, res, next) => {
           createdAt: { [Op.gte]: today, [Op.lt]: tomorrow }
         }
       }),
-      UsageLog.sum('totalTokens')
+      UsageLog.sum('totalTokens'),
+      UsageLog.sum('totalTokens', { where: { source: 'sdk' } })
     ]);
 
     response.success(res, {
@@ -44,7 +46,8 @@ const getOverview = async (req, res, next) => {
       totalModels,
       totalAgents,
       todayTokens: todayTokens || 0,
-      totalTokens: totalTokens || 0
+      totalTokens: totalTokens || 0,
+      sdkTokens: sdkTokens || 0
     }, '获取成功');
   } catch (error) {
     next(error);
@@ -156,9 +159,23 @@ const getTrends = async (req, res, next) => {
       group: ['type']
     });
 
+    // 按来源统计
+    const sourceDistribution = await UsageLog.findAll({
+      where: {
+        createdAt: { [Op.gte]: startDate }
+      },
+      attributes: [
+        'source',
+        [fn('COUNT', col('id')), 'count'],
+        [fn('SUM', col('total_tokens')), 'tokens']
+      ],
+      group: ['source']
+    });
+
     response.success(res, {
       trends,
-      typeDistribution
+      typeDistribution,
+      sourceDistribution
     }, '获取成功');
   } catch (error) {
     next(error);

@@ -42,6 +42,7 @@ const Departments = () => {
 
   useEffect(() => {
     fetchDepartments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -55,6 +56,7 @@ const Departments = () => {
         setTreeData(transformTreeData(res.data));
       }
     } catch (error) {
+      console.error(error);
       message.error('获取部门列表失败');
     } finally {
       setLoading(false);

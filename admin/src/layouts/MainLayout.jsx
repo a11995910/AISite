@@ -23,7 +23,8 @@ import {
   SettingOutlined,
   UserOutlined,
   LogoutOutlined,
-  CloudServerOutlined
+  CloudServerOutlined,
+  RocketOutlined
 } from '@ant-design/icons';
 import useUserStore from '../stores/userStore';
 
@@ -99,6 +100,11 @@ const MainLayout = () => {
       key: '/statistics',
       icon: <BarChartOutlined />,
       label: '用量统计'
+    },
+    {
+      key: '/sdk-guide',
+      icon: <RocketOutlined />,
+      label: 'SDK 集成'
     },
     {
       key: '/settings',

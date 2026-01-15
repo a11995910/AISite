@@ -34,4 +34,7 @@ router.post('/conversations/:id/messages/stream', chatController.sendMessageStre
 // 嵌入式对话流式响应（无需登录，用于SDK嵌入场景）
 router.post('/embed/stream', chatController.embedMessageStream);
 
+// 获取嵌入式对话配置（无需登录）
+router.get('/embed/config', chatController.getEmbedConfig);
+
 module.exports = router;

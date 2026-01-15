@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Row, Col, Card, Statistic, Typography, Spin } from 'antd';
-import { 
-  UserOutlined, 
-  ApiOutlined, 
+import {
+  UserOutlined,
+  ApiOutlined,
   RobotOutlined,
-  ThunderboltOutlined
+  ThunderboltOutlined,
+  CodeOutlined
 } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
 import { getOverview, getTrends } from '../api/statistics';
@@ -70,6 +71,12 @@ const Dashboard = () => {
       value: overview.todayTokens || 0,
       icon: <ThunderboltOutlined />,
       color: '#fa8c16'
+    },
+    {
+      title: 'SDK Token消耗',
+      value: overview.sdkTokens || 0,
+      icon: <CodeOutlined />,
+      color: '#eb2f96'
     }
   ];
 
@@ -191,8 +198,8 @@ const Dashboard = () => {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Statistic 
-                  title={stat.title} 
+                <Statistic
+                  title={stat.title}
                   value={stat.value}
                   valueStyle={{ color: stat.color }}
                 />

@@ -42,28 +42,28 @@ const Settings = () => {
 
   // 加载搜索API配置
   useEffect(() => {
-    loadSearchSettings();
-  }, []);
-
-  const loadSearchSettings = async () => {
-    setSearchLoading(true);
-    try {
-      const res = await getSettings('search');
-      if (res.code === 200 && res.data) {
-        searchForm.setFieldsValue({
-          tavily_api_key: res.data.tavily_api_key?.value || '',
-          serper_api_key: res.data.serper_api_key?.value || '',
-          bocha_api_key: res.data.bocha_api_key?.value || '',
-          bing_api_key: res.data.bing_api_key?.value || '',
-          search_provider: res.data.search_provider?.value || 'auto'
-        });
+    const loadSearchSettings = async () => {
+      setSearchLoading(true);
+      try {
+        const res = await getSettings('search');
+        if (res.code === 200 && res.data) {
+          searchForm.setFieldsValue({
+            tavily_api_key: res.data.tavily_api_key?.value || '',
+            serper_api_key: res.data.serper_api_key?.value || '',
+            bocha_api_key: res.data.bocha_api_key?.value || '',
+            bing_api_key: res.data.bing_api_key?.value || '',
+            search_provider: res.data.search_provider?.value || 'auto'
+          });
+        }
+      } catch (error) {
+        console.error('加载设置失败:', error);
+      } finally {
+        setSearchLoading(false);
       }
-    } catch (error) {
-      console.error('加载设置失败:', error);
-    } finally {
-      setSearchLoading(false);
-    }
-  };
+    };
+    loadSearchSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChangePassword = async (values) => {
     setLoading(true);

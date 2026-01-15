@@ -34,7 +34,9 @@ const getConfiguredModel = async (type = 'chat') => {
       id: model.id,
       apiBase: model.provider.baseUrl,
       apiKey: model.provider.apiKey,
-      modelName: model.modelId
+      modelName: model.modelId,
+      modelDisplayName: model.name,
+      providerType: model.provider.apiType
     };
   }
 
@@ -71,12 +73,12 @@ const getSearchApiConfig = async () => {
 /**
  * 记录用量日志
  */
-const recordUsage = async (userId, modelId, type, input, output, agentId = null) => {
+const recordUsage = async (userId, modelId, type, input, output, agentId = null, source = 'web') => {
   try {
     // 简单估算token: 1字符 ≈ 1 token (保守估计)
     const inputTokens = input ? input.length : 0;
     const outputTokens = output ? output.length : 0;
-    
+
     // 图片固定计费，例如1000token/张
     const finalInputTokens = type === 'image' ? 1000 : inputTokens;
     const finalOutputTokens = type === 'image' ? 0 : outputTokens;
@@ -86,6 +88,7 @@ const recordUsage = async (userId, modelId, type, input, output, agentId = null)
       modelId,
       agentId,
       type,
+      source, // 记录来源
       inputTokens: finalInputTokens,
       outputTokens: finalOutputTokens,
       totalTokens: finalInputTokens + finalOutputTokens
@@ -580,7 +583,7 @@ const sendMessageStream = async (req, res, next) => {
       
       // 记录用量日志 (Chat模式)
       if (config.id) {
-        await recordUsage(req.user.id, config.id, 'chat', content, fullContent, agentId);
+        await recordUsage(req.user.id, config.id, 'chat', content, fullContent, agentId, 'web');
       }
     }
     
@@ -1182,7 +1185,7 @@ async function generateImage(res, prompt, userId, agentId) {
           
           // 记录用量日志 (Image模式)
           if (config.id) {
-             await recordUsage(userId, config.id, 'image', prompt, imageUrl, agentId);
+             await recordUsage(userId, config.id, 'image', prompt, imageUrl, agentId, 'web');
           }
           
           return result;
@@ -1289,6 +1292,14 @@ URL: ${pageContext.url || '未知'}
     const apiKey = config.apiKey;
     const model = config.modelName || 'gpt-4';
 
+    // 发送模型信息
+    res.write(`data: ${JSON.stringify({
+      modelInfo: {
+        name: config.modelDisplayName || 'AI Assistant',
+        provider: config.providerType || 'custom'
+      }
+    })}\n\n`);
+
     let fullContent = '';
 
     if (!apiKey || apiKey === 'your-api-key-here') {
@@ -1343,6 +1354,12 @@ URL: ${pageContext.url || '未知'}
             }
           }
         }
+
+        // 记录SDK用量日志
+        if (config.id && fullContent) {
+          // SDK调用通常没有登录用户，userId设为null
+          await recordUsage(null, config.id, 'chat', content, fullContent, null, 'sdk');
+        }
       } catch (apiError) {
         console.error('Embed API调用失败:', apiError.message);
         const errorMsg = `抱歉，服务暂时不可用：${apiError.message}`;
@@ -1364,6 +1381,27 @@ URL: ${pageContext.url || '未知'}
   }
 };
 
+/**
+ * 获取嵌入式对话配置（无需登录）
+ * GET /api/chat/embed/config
+ */
+const getEmbedConfig = async (req, res, next) => {
+  try {
+    // 获取默认聊天模型配置
+    const config = await getConfiguredModel('chat');
+
+    response.success(res, {
+      modelInfo: {
+        name: config.modelDisplayName || 'AI Assistant',
+        provider: config.providerType || 'custom',
+        modelName: config.modelName
+      }
+    }, '获取配置成功');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getConversations,
   createConversation,
@@ -1373,5 +1411,6 @@ module.exports = {
   getMessages,
   sendMessage,
   sendMessageStream,
-  embedMessageStream
+  embedMessageStream,
+  getEmbedConfig
 };

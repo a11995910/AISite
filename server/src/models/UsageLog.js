@@ -15,7 +15,7 @@ const UsageLog = sequelize.define('usage_logs', {
   },
   userId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true, // 修改为可为空，支持SDK匿名使用
     field: 'user_id',
     comment: '用户ID'
   },
@@ -35,6 +35,12 @@ const UsageLog = sequelize.define('usage_logs', {
     type: DataTypes.ENUM('chat', 'image'),
     allowNull: false,
     comment: '使用类型'
+  },
+  source: {
+    type: DataTypes.STRING(20),
+    defaultValue: 'web',
+    allowNull: false,
+    comment: '来源: web/sdk'
   },
   inputTokens: {
     type: DataTypes.INTEGER,

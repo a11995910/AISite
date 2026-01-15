@@ -59,6 +59,7 @@ const Models = () => {
         setModels(res.data);
       }
     } catch (error) {
+      console.error(error);
       message.error('获取模型列表失败');
     } finally {
       setLoading(false);

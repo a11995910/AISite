@@ -56,6 +56,7 @@ const Agents = () => {
         setAgents(res.data);
       }
     } catch (error) {
+      console.error(error);
       message.error('获取Agent列表失败');
     } finally {
       setLoading(false);

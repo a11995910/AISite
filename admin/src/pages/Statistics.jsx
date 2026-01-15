@@ -25,35 +25,35 @@ const Statistics = () => {
   const [dateRange, setDateRange] = useState(null);
 
   useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const params = {};
+        if (dateRange) {
+          params.startDate = dateRange[0].format('YYYY-MM-DD');
+          params.endDate = dateRange[1].format('YYYY-MM-DD');
+        }
+
+        const [usageRes, trendsRes] = await Promise.all([
+          getUsage(params),
+          getTrends({ days: 30 })
+        ]);
+
+        if (usageRes.code === 200) {
+          setUsage(usageRes.data);
+        }
+        if (trendsRes.code === 200) {
+          setTrends(trendsRes.data);
+        }
+      } catch (error) {
+        console.error('获取统计数据失败:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
   }, [dateRange]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const params = {};
-      if (dateRange) {
-        params.startDate = dateRange[0].format('YYYY-MM-DD');
-        params.endDate = dateRange[1].format('YYYY-MM-DD');
-      }
-
-      const [usageRes, trendsRes] = await Promise.all([
-        getUsage(params),
-        getTrends({ days: 30 })
-      ]);
-
-      if (usageRes.code === 200) {
-        setUsage(usageRes.data);
-      }
-      if (trendsRes.code === 200) {
-        setTrends(trendsRes.data);
-      }
-    } catch (error) {
-      console.error('获取统计数据失败:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // 模型使用占比饼图
   const modelPieOption = {
@@ -109,10 +109,10 @@ const Statistics = () => {
         type: 'pie',
         radius: '60%',
         center: ['50%', '45%'],
-        data: trends.typeDistribution.map(item => ({
+        data: trends.typeDistribution?.map(item => ({
           name: item.type === 'chat' ? '对话' : '绘图',
           value: parseInt(item.tokens) || 0
-        })),
+        })) || [],
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
@@ -123,6 +123,42 @@ const Statistics = () => {
         itemStyle: {
           color: (params) => {
             const colors = ['#1890ff', '#722ed1'];
+            return colors[params.dataIndex % colors.length];
+          }
+        }
+      }
+    ]
+  };
+
+  // 来源分布饼图
+  const sourcePieOption = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)'
+    },
+    legend: {
+      bottom: 0
+    },
+    series: [
+      {
+        name: '使用来源',
+        type: 'pie',
+        radius: '60%',
+        center: ['50%', '45%'],
+        data: trends.sourceDistribution?.map(item => ({
+          name: item.source === 'sdk' ? 'SDK调用' : 'Web平台',
+          value: parseInt(item.tokens) || 0
+        })) || [],
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+        itemStyle: {
+          color: (params) => {
+            const colors = ['#fa8c16', '#13c2c2'];
             return colors[params.dataIndex % colors.length];
           }
         }
@@ -208,8 +244,10 @@ const Statistics = () => {
       dataIndex: ['user', 'name'],
       render: (text, record) => (
         <Space direction="vertical" size={0}>
-          <span>{text}</span>
-          <span style={{ color: '#999', fontSize: 12 }}>{record.user?.username}</span>
+          <span>{text || (record.userId === null ? 'SDK匿名用户' : '未知用户')}</span>
+          <span style={{ color: '#999', fontSize: 12 }}>
+            {record.user?.username || (record.userId === null ? 'SDK' : '-')}
+          </span>
         </Space>
       )
     },
@@ -253,9 +291,9 @@ const Statistics = () => {
 
       <Row gutter={16}>
         {/* 模型使用占比 */}
-        <Col xs={24} lg={12}>
-          <Card 
-            title="模型使用占比" 
+        <Col xs={24} lg={8}>
+          <Card
+            title="模型使用占比"
             style={{ marginBottom: 16, borderRadius: 12 }}
           >
             <ReactECharts option={modelPieOption} style={{ height: 300 }} />
@@ -263,12 +301,22 @@ const Statistics = () => {
         </Col>
 
         {/* 使用类型 */}
-        <Col xs={24} lg={12}>
-          <Card 
-            title="使用类型分布" 
+        <Col xs={24} lg={8}>
+          <Card
+            title="使用类型分布"
             style={{ marginBottom: 16, borderRadius: 12 }}
           >
             <ReactECharts option={typePieOption} style={{ height: 300 }} />
+          </Card>
+        </Col>
+
+        {/* 来源分布 */}
+        <Col xs={24} lg={8}>
+          <Card
+            title="来源分布"
+            style={{ marginBottom: 16, borderRadius: 12 }}
+          >
+            <ReactECharts option={sourcePieOption} style={{ height: 300 }} />
           </Card>
         </Col>
       </Row>

@@ -57,6 +57,7 @@ const Employees = () => {
   useEffect(() => {
     fetchUsers();
     fetchDepartments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize]);
 
   /**
@@ -71,6 +72,7 @@ const Employees = () => {
         setTotal(res.data.pagination.total);
       }
     } catch (error) {
+      console.error(error);
       message.error('获取用户列表失败');
     } finally {
       setLoading(false);

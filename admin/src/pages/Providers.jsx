@@ -51,6 +51,7 @@ const Providers = () => {
         setProviders(res.data);
       }
     } catch (error) {
+      console.error(error);
       message.error('获取服务商列表失败');
     } finally {
       setLoading(false);

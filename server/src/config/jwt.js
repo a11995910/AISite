@@ -17,6 +17,7 @@ module.exports = {
     '/auth/login',
     '/auth/register',
     '/health',
-    '/chat/embed/stream'  // SDK嵌入式对话接口
+    '/chat/embed/stream', // SDK嵌入式对话接口
+    '/chat/embed/config'  // SDK嵌入式配置接口
   ]
 };

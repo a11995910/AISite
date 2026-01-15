@@ -69,6 +69,7 @@ const Knowledge = () => {
         setKnowledgeBases(res.data);
       }
     } catch (error) {
+      console.error(error);
       message.error('获取知识库失败');
     } finally {
       setLoading(false);
@@ -139,6 +140,7 @@ const Knowledge = () => {
         setDocuments(res.data);
       }
     } catch (error) {
+      console.error(error);
       message.error('获取文档失败');
     } finally {
       setDocLoading(false);
@@ -187,6 +189,7 @@ const Knowledge = () => {
         setPreviewVisible(true);
       }
     } catch (error) {
+      console.error(error);
       message.error('获取文档内容失败');
     }
   };
