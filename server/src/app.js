@@ -22,7 +22,18 @@ const PORT = process.env.PORT || 3001;
 
 // 中间件配置
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:3000'],
+  origin: function(origin, callback) {
+    // 允许的固定来源
+    const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:3000'];
+    // 允许无 origin（如本地文件或 Postman）或在允许列表中的来源
+    // 对于 SDK 嵌入场景，允许所有来源
+    if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost') || origin.startsWith('file://')) {
+      callback(null, true);
+    } else {
+      // 对于其他来源（SDK嵌入的业务系统），也允许访问
+      callback(null, true);
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -30,6 +41,17 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件目录
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// SDK静态文件目录（允许跨域访问）
+app.use('/sdk', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+}, express.static(path.join(__dirname, '../../sdk/dist')));
+
+// SDK测试页面
+app.get('/sdk-demo', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../sdk/demo.html'));
+});
 
 // 请求日志（开发环境）
 if (process.env.NODE_ENV === 'development') {

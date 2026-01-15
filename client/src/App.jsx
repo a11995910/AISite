@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import ChatPage from './pages/Chat';
+import EmbedChat from './pages/EmbedChat';
 import './App.css';
 
 /**
@@ -62,7 +63,10 @@ function App() {
           
           {/* 注册页 */}
           <Route path="/register" element={<RegisterPage />} />
-          
+
+          {/* 嵌入式对话页（用于SDK iframe） */}
+          <Route path="/embed" element={<EmbedChat />} />
+
           {/* 需要登录的页面 */}
           <Route
             path="/"

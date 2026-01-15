@@ -1246,6 +1246,124 @@ async function callAIAPI(content, conversationId) {
   };
 }
 
+/**
+ * 嵌入式对话流式响应（无需登录，用于SDK嵌入场景）
+ * POST /api/chat/embed/stream
+ */
+const embedMessageStream = async (req, res, next) => {
+  try {
+    const { content, pageContext } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ code: 400, message: '消息内容不能为空' });
+    }
+
+    // 设置SSE响应头
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.flushHeaders();
+
+    // 构建消息上下文
+    let messages = [];
+
+    // 如果有页面上下文，添加系统提示
+    if (pageContext) {
+      messages.push({
+        role: 'system',
+        content: `你是一个智能助手，用户正在浏览一个网页，以下是该网页的信息：
+URL: ${pageContext.url || '未知'}
+标题: ${pageContext.title || '未知'}
+描述: ${pageContext.description || '无'}
+
+请基于用户的问题和页面内容提供帮助。如果用户的问题与页面内容相关，请参考页面内容回答。`
+      });
+    }
+
+    messages.push({ role: 'user', content });
+
+    // 获取模型配置
+    const config = await getConfiguredModel('chat');
+    const apiBase = config.apiBase || 'https://api.openai.com';
+    const apiKey = config.apiKey;
+    const model = config.modelName || 'gpt-4';
+
+    let fullContent = '';
+
+    if (!apiKey || apiKey === 'your-api-key-here') {
+      // 模拟响应
+      const mockResponse = `您好！我是AI助手。
+
+关于您的问题，${pageContext ? `我已读取页面「${pageContext.title || '当前页面'}」的内容。` : ''}
+
+目前系统处于演示模式，实际部署后可提供完整的AI对话能力。`;
+
+      for (const char of mockResponse) {
+        fullContent += char;
+        res.write(`data: ${JSON.stringify({ content: char })}\n\n`);
+        await new Promise(r => setTimeout(r, 20));
+      }
+    } else {
+      try {
+        const fetch = (await import('node-fetch')).default;
+        const aiResponse = await fetch(`${apiBase}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({ model, messages, stream: true }),
+          timeout: 30000
+        });
+
+        if (!aiResponse.ok) {
+          throw new Error(`API请求失败 (${aiResponse.status})`);
+        }
+
+        const reader = aiResponse.body;
+        const decoder = new (require('util').TextDecoder)();
+
+        for await (const chunk of reader) {
+          const text = decoder.decode(chunk);
+          const lines = text.split('\n').filter(line => line.trim());
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6).trim();
+              if (data.includes('DONE')) continue;
+              try {
+                const parsed = JSON.parse(data);
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) {
+                  fullContent += delta;
+                  res.write(`data: ${JSON.stringify({ content: delta })}\n\n`);
+                }
+              } catch {}
+            }
+          }
+        }
+      } catch (apiError) {
+        console.error('Embed API调用失败:', apiError.message);
+        const errorMsg = `抱歉，服务暂时不可用：${apiError.message}`;
+        res.write(`data: ${JSON.stringify({ content: errorMsg })}\n\n`);
+        fullContent = errorMsg;
+      }
+    }
+
+    // 生成推荐追问
+    const suggestions = ['能详细解释一下吗？', '还有其他相关信息吗？', '帮我总结一下'];
+    res.write(`data: ${JSON.stringify({ suggestions })}\n\n`);
+    res.write('data: [STREAM_END]\n\n');
+    res.end();
+
+  } catch (error) {
+    console.error('Embed流式响应错误:', error);
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
+  }
+};
+
 module.exports = {
   getConversations,
   createConversation,
@@ -1254,5 +1372,6 @@ module.exports = {
   deleteConversation,
   getMessages,
   sendMessage,
-  sendMessageStream
+  sendMessageStream,
+  embedMessageStream
 };

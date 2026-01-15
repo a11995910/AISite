@@ -16,6 +16,7 @@ module.exports = {
   publicRoutes: [
     '/auth/login',
     '/auth/register',
-    '/health'
+    '/health',
+    '/chat/embed/stream'  // SDK嵌入式对话接口
   ]
 };

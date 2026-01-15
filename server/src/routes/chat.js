@@ -31,4 +31,7 @@ router.post('/conversations/:id/messages', chatController.sendMessage);
 // 发送消息（流式响应）
 router.post('/conversations/:id/messages/stream', chatController.sendMessageStream);
 
+// 嵌入式对话流式响应（无需登录，用于SDK嵌入场景）
+router.post('/embed/stream', chatController.embedMessageStream);
+
 module.exports = router;
