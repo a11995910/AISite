@@ -395,31 +395,32 @@ ${userContent}`;
           </div>
         )}
 
-        {/* 输入提示 */}
-        <div className="embed-input-hint" style={{ marginBottom: 8, padding: '0 4px' }}>
-          <span className="embed-input-hint-text" style={{ display: 'flex', alignItems: 'center' }}>
-            {modelInfo ? (
-              <span>当前模型：{modelInfo.name}</span>
-            ) : (
-              '基于页面内容智能回答'
-            )}
-          </span>
-          <span className="embed-input-hint-key">
-            <kbd>Enter</kbd> 发送
-          </span>
-        </div>
-
-        {/* 输入框容器 */}
+        {/* 输入框容器 (核心区域) */}
         <div className="embed-input-container">
+          {/* 模型信息头 - 移至输入框内部 */}
+          <div className="embed-input-header">
+            {modelInfo ? (
+              <div className="embed-model-badge">
+                <span>当前模型：{modelInfo.name}</span>
+              </div>
+            ) : (
+              <div className="embed-model-badge">
+                <span>✨ AI Assistant</span>
+              </div>
+            )}
+          </div>
+
+          {/* 输入框主体 */}
           <div className="embed-input-inner">
             <Input.TextArea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="输入你的问题，我来帮你分析..."
-              autoSize={{ minRows: 1, maxRows: 5 }}
+              autoSize={{ minRows: 1, maxRows: 8 }}
               disabled={sending}
               className="embed-textarea"
+              variant="borderless"
             />
             <Button
               type="primary"
@@ -430,8 +431,8 @@ ${userContent}`;
             />
           </div>
         </div>
-        </div>
       </div>
+    </div>
     </ConfigProvider>
   );
 };
