@@ -702,45 +702,32 @@ const sendMessageStream = async (req, res, next) => {
 };
 
 /**
- * 发送模拟响应
+ * 发送API未配置的错误提示
  * @param {Response} res Express响应对象
- * @param {string} userContent 用户消息内容
+ * @param {string} userContent 用户消息内容（保留参数以保持接口兼容）
  * @returns {string} 完整的响应内容
  */
 async function sendMockResponse(res, userContent) {
-  const mockResponse = `您好！我是企业AI助手。
+  const errorMessage = `⚠️ **AI 模型未配置**
 
-关于您的问题：「${userContent}」
+当前系统尚未配置 AI 模型，无法进行对话。
 
-目前系统处于演示模式，尚未连接真实的大语言模型API。实际部署时，可以配置以下模型：
+**请联系管理员进行配置：**
+1. 登录管理后台
+2. 进入「模型配置」页面
+3. 添加模型提供商和 API Key
+4. 将模型设为「默认」或「激活」状态
 
-**支持的模型服务商**：
-- OpenAI (GPT-4, GPT-3.5)
-- Azure OpenAI
-- 通义千问
-- 文心一言
-- Claude
-- 其他兼容OpenAI API格式的模型
+配置完成后即可正常使用 AI 对话功能。`;
 
-**配置方法**：
-在 \`.env\` 文件中设置以下环境变量：
-- \`OPENAI_API_BASE\` - API基础地址
-- \`OPENAI_API_KEY\` - API密钥
-- \`OPENAI_MODEL\` - 模型名称
-
-配置完成后，重启服务即可使用真实的AI对话功能。
-
-如需帮助，请联系系统管理员。`;
-
-  // 模拟打字效果，分段发送
-  const segments = mockResponse.split('\n');
+  // 分段发送错误提示
+  const segments = errorMessage.split('\n');
   let fullContent = '';
   
   for (const segment of segments) {
-    // 发送段落
     fullContent += segment + '\n';
     res.write(`data: ${JSON.stringify({ content: segment + '\n' })}\n\n`);
-    await new Promise(r => setTimeout(r, 50));
+    await new Promise(r => setTimeout(r, 30));
   }
   
   return fullContent.trim();
@@ -1202,25 +1189,21 @@ async function generateImage(res, prompt, userId, agentId) {
       }
     }
     
-    // 只有在没有配置Key时，才模拟图片生成响应
-    const mockResult = `🎨 **图片生成模式 (演示)**
+    // 只有在没有配置Key时，显示配置缺失提示
+    const errorMessage = `⚠️ **图片生成 API 未配置**
 
-您的描述：「${prompt}」
+当前系统尚未配置图片生成模型，无法生成图片。
 
-目前系统处于演示模式，暂未连接真实的图片生成API。
+**请联系管理员进行配置：**
+1. 登录管理后台
+2. 进入「模型配置」页面
+3. 添加支持图片生成的模型（如 DALL-E、Stable Diffusion）
+4. 确保模型已激活
 
-**支持的图片模型**：
-- DALL-E 3
-- Stable Diffusion
-- Midjourney API
+配置完成后即可使用图片生成功能。`;
 
-**配置方法**：
-在 \`.env\` 文件中确保配置了支持图片生成的API。
-
-生成后的图片将直接显示在对话中。`;
-
-    // 模拟打字效果
-    const lines = mockResult.split('\n');
+    // 分段发送错误提示
+    const lines = errorMessage.split('\n');
     let fullContent = '';
     for (const line of lines) {
       fullContent += line + '\n';
@@ -1239,13 +1222,16 @@ async function generateImage(res, prompt, userId, agentId) {
 }
 
 /**
- * 调用AI API
+ * 调用AI API（非流式响应）
+ * @param {string} content 用户消息内容
+ * @param {number} conversationId 对话ID
+ * @returns {object} AI响应结果
  */
 async function callAIAPI(content, conversationId) {
-  // 简单模拟AI回复
+  // API未配置时返回错误提示
   return {
-    content: `收到您的消息："${content}"。这是AI的回复。`,
-    suggestions: ['了解更多', '换个话题', '继续深入']
+    content: `⚠️ AI 模型未配置，请联系管理员在后台添加模型配置。`,
+    suggestions: ['如何配置', '联系管理员']
   };
 }
 
@@ -1303,14 +1289,14 @@ URL: ${pageContext.url || '未知'}
     let fullContent = '';
 
     if (!apiKey || apiKey === 'your-api-key-here') {
-      // 模拟响应
-      const mockResponse = `您好！我是AI助手。
+      // API未配置时显示错误提示
+      const errorMessage = `⚠️ AI 服务未配置
 
-关于您的问题，${pageContext ? `我已读取页面「${pageContext.title || '当前页面'}」的内容。` : ''}
+当前系统尚未配置 AI 模型，无法进行对话。
 
-目前系统处于演示模式，实际部署后可提供完整的AI对话能力。`;
+请联系网站管理员配置 AI 服务。`;
 
-      for (const char of mockResponse) {
+      for (const char of errorMessage) {
         fullContent += char;
         res.write(`data: ${JSON.stringify({ content: char })}\n\n`);
         await new Promise(r => setTimeout(r, 20));
