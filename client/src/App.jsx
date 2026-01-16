@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import ChatPage from './pages/Chat';
+import SettingsPage from './pages/Settings';
 import EmbedChat from './pages/EmbedChat';
 import './App.css';
 
@@ -80,6 +81,7 @@ function App() {
             <Route index element={<ChatPage />} />
             <Route path="chat" element={<ChatPage />} />
             <Route path="chat/:conversationId" element={<ChatPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
           
           {/* 404跳转首页 */}

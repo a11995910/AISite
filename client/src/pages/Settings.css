@@ -1,0 +1,407 @@
+/* Settings 页面样式 */
+
+.settings-page {
+  padding: 24px;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.settings-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-title .anticon {
+  color: var(--accent-primary);
+}
+
+/* 知识库卡片容器 */
+.knowledge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* 知识库卡片 */
+.kb-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.kb-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.kb-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(124, 58, 237, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.kb-card:hover::before {
+  opacity: 1;
+}
+
+.kb-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.kb-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kb-icon .anticon {
+  font-size: 24px;
+  color: white;
+}
+
+.kb-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.kb-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kb-desc {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kb-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.kb-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.kb-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.kb-stat .anticon {
+  font-size: 14px;
+}
+
+.kb-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.kb-card:hover .kb-actions {
+  opacity: 1;
+}
+
+.kb-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.kb-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.kb-action-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* 添加知识库卡片 */
+.kb-card-add {
+  background: transparent;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.kb-card-add:hover {
+  border-color: var(--accent-primary);
+  background: rgba(124, 58, 237, 0.05);
+  transform: none;
+  box-shadow: none;
+}
+
+.kb-card-add::before {
+  display: none;
+}
+
+.kb-card-add .anticon {
+  font-size: 32px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.kb-card-add:hover .anticon {
+  color: var(--accent-primary);
+  transform: scale(1.1);
+}
+
+.kb-card-add span {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  transition: color 0.3s ease;
+}
+
+.kb-card-add:hover span {
+  color: var(--accent-primary);
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state .ant-empty-description {
+  color: var(--text-tertiary);
+}
+
+/* Modal 样式覆盖 */
+.settings-modal .ant-modal-content {
+  background: var(--bg-secondary);
+  border: var(--glass-border);
+}
+
+.settings-modal .ant-modal-header {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.settings-modal .ant-modal-title {
+  color: var(--text-primary);
+}
+
+.settings-modal .ant-form-item-label > label {
+  color: var(--text-secondary);
+}
+
+/* 文档列表样式 */
+.doc-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.doc-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.doc-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.doc-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+  flex-shrink: 0;
+}
+
+.doc-icon .anticon {
+  font-size: 20px;
+  color: #3b82f6;
+}
+
+.doc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.doc-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.doc-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.doc-item:hover .doc-actions {
+  opacity: 1;
+}
+
+/* 上传区域 */
+.upload-area {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+  border-color: var(--accent-primary);
+  background: rgba(124, 58, 237, 0.05);
+}
+
+.upload-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* 预览弹窗 */
+.preview-content {
+  max-height: 60vh;
+  overflow: auto;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* 状态标签 */
+.status-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.status-pending {
+  background: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+}
+
+.status-processing {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.status-completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.status-failed {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 16px;
+  }
+
+  .knowledge-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

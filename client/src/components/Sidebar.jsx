@@ -10,6 +10,7 @@ import {
   ThunderboltOutlined,
   SettingOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import useChatStore from '../stores/chatStore';
 import { getConversations, createConversation, deleteConversation } from '../api/chat';
 import { getAgents, createPersonalAgent, deleteAgent, generateAgentPrompt } from '../api/agent';
@@ -29,6 +30,7 @@ const Sidebar = () => {
   const [createLoading, setCreateLoading] = useState(false);
   const [generateLoading, setGenerateLoading] = useState(false);
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const {
     conversations,
     setConversations,
@@ -331,24 +333,20 @@ const Sidebar = () => {
                   className="agent-item"
                   onClick={() => handleSelectAgent(agent)}
                 >
-                  <div className="agent-avatar">
-                    {agent.avatar ? (
-                      <img src={agent.avatar} alt={agent.name} />
-                    ) : (
-                      <RobotOutlined />
-                    )}
+                  <div className="agent-avatar-container">
+                    <div className="agent-avatar-main">
+                      {agent.avatar ? (
+                        <img src={agent.avatar} alt={agent.name} />
+                      ) : (
+                        <RobotOutlined />
+                      )}
+                    </div>
                     {agent.type === 'enterprise' ? (
-                      <Badge
-                        className="enterprise-badge"
-                        count="企业"
-                        size="small"
-                      />
+                      <div className="enterprise-indicator">企业</div>
                     ) : (
-                      <Badge
-                        className="personal-badge"
-                        count={<UserOutlined style={{ fontSize: 10, color: '#fff' }} />}
-                        size="small"
-                      />
+                      <div className="personal-indicator">
+                        <UserOutlined />
+                      </div>
                     )}
                   </div>
                   <div className="agent-info">
@@ -387,7 +385,7 @@ const Sidebar = () => {
 
       {/* Footer / User Profile */}
       <div className="sidebar-footer">
-        <div className="footer-item" onClick={() => message.info('Settings clicked')}>
+        <div className="footer-item" onClick={() => navigate('/settings')}>
           <SettingOutlined />
           <span>Settings</span>
         </div>
