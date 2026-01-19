@@ -11,6 +11,39 @@ const response = require('../utils/response');
 const { Conversation, Message, Model, ModelProvider, UsageLog, SystemSetting } = require('../models');
 
 /**
+ * 根据ID获取模型信息
+ * @param {number} modelId 模型ID
+ */
+const getModelById = async (modelId) => {
+  if (!modelId) return null;
+  
+  const model = await Model.findOne({
+    where: {
+      id: modelId,
+      isActive: 1
+    },
+    include: [{
+      model: ModelProvider,
+      as: 'provider',
+      where: { isActive: 1 }
+    }]
+  });
+
+  if (model && model.provider) {
+    return {
+      id: model.id,
+      apiBase: model.provider.baseUrl,
+      apiKey: model.provider.apiKey,
+      modelName: model.modelId,
+      modelDisplayName: model.name,
+      providerType: model.provider.apiType
+    };
+  }
+
+  return null;
+};
+
+/**
  * 获取配置的模型信息
  * @param {string} type 模型类型 'chat' | 'image'
  */
@@ -313,7 +346,7 @@ const sendMessage = async (req, res, next) => {
  */
 const sendMessageStream = async (req, res, next) => {
   try {
-    const { content, useWeb, searchEngine, knowledgeBaseIds, agentId, mode, files } = req.body;
+    const { content, useWeb, searchEngine, knowledgeBaseIds, agentId, mode, files, modelId } = req.body;
     
     if (!content) {
       return res.status(400).json({ code: 400, message: '消息内容不能为空' });
@@ -471,8 +504,14 @@ const sendMessageStream = async (req, res, next) => {
     // 调用AI API
     let fullContent = '';
     
-    // 获取模型配置
-    const config = await getConfiguredModel('chat');
+    // 获取模型配置：优先使用用户选择的模型，否则使用默认模型
+    let config = null;
+    if (modelId) {
+      config = await getModelById(modelId);
+    }
+    if (!config) {
+      config = await getConfiguredModel('chat');
+    }
     const apiBase = config.apiBase || 'https://api.openai.com';
     const apiKey = config.apiKey;
     const model = config.modelName || 'gpt-4';

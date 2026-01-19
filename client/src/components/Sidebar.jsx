@@ -387,7 +387,7 @@ const Sidebar = () => {
       <div className="sidebar-footer">
         <div className="footer-item" onClick={() => navigate('/settings')}>
           <SettingOutlined />
-          <span>Settings</span>
+          <span>个人知识库</span>
         </div>
         <div className="footer-item" onClick={() => message.info('Profile clicked')}>
           <UserOutlined />

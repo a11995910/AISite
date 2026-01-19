@@ -308,3 +308,85 @@
 :root[data-theme='light'] .web-switch.ant-switch-checked {
   background: #1890ff !important;
 }
+
+/* Model Selector */
+.model-selector {
+  min-width: 120px;
+  max-width: 160px;
+}
+
+.model-selector .ant-select-selector {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  color: var(--text-secondary) !important;
+  font-size: 13px !important;
+  height: 32px !important;
+  transition: all 0.2s !important;
+}
+
+.model-selector:hover .ant-select-selector {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.model-selector.ant-select-focused .ant-select-selector {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important;
+}
+
+.model-selector .ant-select-selection-item {
+  color: var(--text-primary) !important;
+  line-height: 30px !important;
+}
+
+.model-selector .ant-select-arrow {
+  color: var(--text-tertiary) !important;
+}
+
+:root[data-theme='light'] .model-selector .ant-select-selector {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+:root[data-theme='light'] .model-selector:hover .ant-select-selector {
+  background: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+:root[data-theme='light'] .model-selector.ant-select-focused .ant-select-selector {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: #1890ff !important;
+}
+
+/* Toolbar Right */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.toolbar-tag.kb {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.1);
+}
+
+:root[data-theme='light'] .toolbar-tag {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme='light'] .toolbar-tag.kb {
+  background: rgba(24, 144, 255, 0.08);
+}

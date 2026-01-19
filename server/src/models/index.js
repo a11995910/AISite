@@ -7,6 +7,7 @@ const User = require('./User');
 const Department = require('./Department');
 const ModelProvider = require('./ModelProvider');
 const Model = require('./Model');
+const ModelDepartment = require('./ModelDepartment');
 const KnowledgeBase = require('./KnowledgeBase');
 const KnowledgeDocument = require('./KnowledgeDocument');
 const KnowledgeChunk = require('./KnowledgeChunk');
@@ -24,6 +25,20 @@ Department.hasMany(User, { foreignKey: 'departmentId', as: 'users' });
 // 模型与服务商的关联
 Model.belongsTo(ModelProvider, { foreignKey: 'providerId', as: 'provider' });
 ModelProvider.hasMany(Model, { foreignKey: 'providerId', as: 'models' });
+
+// 模型与部门的多对多关联（权限控制）
+Model.belongsToMany(Department, { 
+  through: ModelDepartment, 
+  foreignKey: 'modelId', 
+  otherKey: 'departmentId',
+  as: 'departments' 
+});
+Department.belongsToMany(Model, { 
+  through: ModelDepartment, 
+  foreignKey: 'departmentId', 
+  otherKey: 'modelId',
+  as: 'allowedModels' 
+});
 
 // 知识库文档与知识库的关联
 KnowledgeDocument.belongsTo(KnowledgeBase, { foreignKey: 'knowledgeBaseId', as: 'knowledgeBase' });
@@ -57,6 +72,7 @@ module.exports = {
   Department,
   ModelProvider,
   Model,
+  ModelDepartment,
   KnowledgeBase,
   KnowledgeDocument,
   KnowledgeChunk,

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Input, Button, Tooltip, Popover, Checkbox, Badge, Upload, message, Segmented, Switch } from 'antd';
+import { Input, Button, Tooltip, Popover, Checkbox, Badge, Upload, message, Segmented, Switch, Select } from 'antd';
 import {
   SendOutlined,
   PaperClipOutlined,
@@ -12,17 +12,19 @@ import {
   CloseOutlined,
   SearchOutlined,
   DownOutlined,
-  LoadingOutlined
+  LoadingOutlined,
+  RobotOutlined
 } from '@ant-design/icons';
 import useChatStore from '../stores/chatStore';
 import { getAvailableSearchEngines, getKnowledgeBases, uploadFiles } from '../api/chat';
+import { getAvailableModels } from '../api/model';
 import './ChatInput.css';
 
 const { TextArea } = Input;
 
 /**
  * 聊天输入组件
- * 包含工具栏：文件上传、联网搜索、知识库选择、模式切换
+ * 包含工具栏：文件上传、联网搜索、知识库选择、模型选择、模式切换
  */
 const ChatInput = ({ onSend, disabled }) => {
   const [value, setValue] = useState('');
@@ -31,6 +33,8 @@ const ChatInput = ({ onSend, disabled }) => {
   const [uploading, setUploading] = useState(false);
   const [searchEngines, setSearchEngines] = useState([]);
   const [knowledgeBases, setKnowledgeBases] = useState([]);
+  const [availableModels, setAvailableModels] = useState([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
   const textAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -41,6 +45,8 @@ const ChatInput = ({ onSend, disabled }) => {
     setSearchEngine,
     selectedKnowledgeBaseIds,
     setSelectedKnowledgeBaseIds,
+    selectedModelId,
+    setSelectedModelId,
     sending,
     currentConversationId // 监听对话切换
   } = useChatStore();
@@ -93,6 +99,31 @@ const ChatInput = ({ onSend, disabled }) => {
     loadKnowledgeBases();
   }, []);
 
+  // 加载可用模型列表（根据 mode 过滤）
+  useEffect(() => {
+    const loadModels = async () => {
+      setModelsLoading(true);
+      try {
+        const res = await getAvailableModels(mode);
+        if (res.code === 200 && res.data) {
+          setAvailableModels(res.data);
+          // 如果当前选中的模型不在列表中，选择默认模型
+          const modelIds = res.data.map(m => m.id);
+          if (!modelIds.includes(selectedModelId)) {
+            // 优先选择默认模型，否则选第一个
+            const defaultModel = res.data.find(m => m.isDefault === 1) || res.data[0];
+            setSelectedModelId(defaultModel?.id || null);
+          }
+        }
+      } catch (error) {
+        console.error('获取模型列表失败:', error);
+      } finally {
+        setModelsLoading(false);
+      }
+    };
+    loadModels();
+  }, [mode]);
+
   /**
    * 处理发送
    */
@@ -104,9 +135,10 @@ const ChatInput = ({ onSend, disabled }) => {
       // 获取成功上传的文件
       const successFiles = uploadedFiles.filter(f => f.status === 'done' && f.content);
       
-      // 传递文件信息给Chat组件，不再拼接到content中
+      // 传递文件信息和模型ID给Chat组件
       onSend(content, { 
         mode, 
+        modelId: selectedModelId,
         files: successFiles.map(f => ({ name: f.file.name, content: f.content })),
         fileNames: successFiles.map(f => f.file.name)
       });
@@ -351,6 +383,25 @@ const ChatInput = ({ onSend, disabled }) => {
             </Tooltip>
           </Popover>
 
+          {/* 模型选择器 */}
+          <Tooltip title="选择模型">
+            <Select
+              size="small"
+              value={selectedModelId}
+              onChange={setSelectedModelId}
+              loading={modelsLoading}
+              disabled={modelsLoading}
+              placeholder="选择模型"
+              className="model-selector"
+              popupMatchSelectWidth={180}
+              suffixIcon={<DownOutlined />}
+              options={availableModels.map(m => ({
+                value: m.id,
+                label: m.name,
+              }))}
+            />
+          </Tooltip>
+
           {/* 模式切换分隔线 */}
           <div className="toolbar-divider" />
 
@@ -371,11 +422,6 @@ const ChatInput = ({ onSend, disabled }) => {
           {selectedKnowledgeBaseIds.length > 0 && (
             <span className="toolbar-tag kb">
               <DatabaseOutlined /> {selectedKnowledgeBaseIds.length}个知识库
-            </span>
-          )}
-          {mode === 'image' && (
-            <span className="toolbar-tag image">
-              <PictureOutlined /> 绘画模式
             </span>
           )}
         </div>

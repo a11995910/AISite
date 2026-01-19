@@ -1,13 +1,14 @@
 /**
  * 模型控制器
- * 处理AI模型的增删改查操作
+ * 处理AI模型的增删改查操作，支持部门权限控制
  */
 
-const { Model, ModelProvider } = require('../models');
+const { Op } = require('sequelize');
+const { Model, ModelProvider, Department, ModelDepartment } = require('../models');
 const response = require('../utils/response');
 
 /**
- * 获取模型列表
+ * 获取模型列表（管理端使用，不过滤权限）
  * GET /api/models
  */
 const getModels = async (req, res, next) => {
@@ -21,15 +22,90 @@ const getModels = async (req, res, next) => {
 
     const models = await Model.findAll({
       where,
-      include: [{
-        model: ModelProvider,
-        as: 'provider',
-        attributes: ['id', 'name', 'apiType']
-      }],
+      include: [
+        {
+          model: ModelProvider,
+          as: 'provider',
+          attributes: ['id', 'name', 'apiType']
+        },
+        {
+          model: Department,
+          as: 'departments',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ],
       order: [['isDefault', 'DESC'], ['createdAt', 'DESC']]
     });
 
     response.success(res, models, '获取成功');
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * 获取用户可用的模型列表（用户端使用，根据权限过滤）
+ * GET /api/models/available
+ * @query type - 模型类型：chat/image，排除 embedding
+ */
+const getAvailableModels = async (req, res, next) => {
+  try {
+    const { type } = req.query;
+    const user = req.user;
+
+    // 只查询启用的模型，排除 embedding 类型
+    const where = { 
+      isActive: 1,
+      type: { [Op.ne]: 'embedding' }
+    };
+    
+    // 如果指定了类型，则按类型过滤
+    if (type && ['chat', 'image'].includes(type)) {
+      where.type = type;
+    }
+
+    const models = await Model.findAll({
+      where,
+      include: [
+        {
+          model: ModelProvider,
+          as: 'provider',
+          attributes: ['id', 'name', 'apiType']
+        },
+        {
+          model: Department,
+          as: 'departments',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ],
+      order: [['isDefault', 'DESC'], ['name', 'ASC']]
+    });
+
+    // 根据权限过滤
+    const filteredModels = models.filter(model => {
+      // 如果不限制部门，所有人可用
+      if (model.restrictDepartments !== 1) {
+        return true;
+      }
+      
+      // 如果限制部门，检查用户部门是否在允许列表中
+      if (!user || !user.departmentId) {
+        return false;
+      }
+      
+      const allowedDeptIds = model.departments.map(d => d.id);
+      return allowedDeptIds.includes(user.departmentId);
+    });
+
+    // 移除 departments 字段，不暴露给用户端
+    const result = filteredModels.map(m => {
+      const { departments, ...rest } = m.toJSON();
+      return rest;
+    });
+
+    response.success(res, result, '获取成功');
   } catch (error) {
     next(error);
   }
@@ -44,10 +120,18 @@ const getModel = async (req, res, next) => {
     const { id } = req.params;
 
     const model = await Model.findByPk(id, {
-      include: [{
-        model: ModelProvider,
-        as: 'provider'
-      }]
+      include: [
+        {
+          model: ModelProvider,
+          as: 'provider'
+        },
+        {
+          model: Department,
+          as: 'departments',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
     });
 
     if (!model) {
@@ -72,7 +156,9 @@ const createModel = async (req, res, next) => {
       modelId, 
       type, 
       maxTokens, 
-      description 
+      description,
+      restrictDepartments,
+      departmentIds
     } = req.body;
 
     if (!providerId || !name || !modelId || !type) {
@@ -96,10 +182,28 @@ const createModel = async (req, res, next) => {
       modelId,
       type,
       maxTokens: maxTokens || 4096,
-      description
+      description,
+      restrictDepartments: restrictDepartments ? 1 : 0
     });
 
-    response.success(res, model, '创建成功', 201);
+    // 如果限制部门，保存部门权限
+    if (restrictDepartments && departmentIds && departmentIds.length > 0) {
+      const deptRecords = departmentIds.map(deptId => ({
+        modelId: model.id,
+        departmentId: deptId
+      }));
+      await ModelDepartment.bulkCreate(deptRecords);
+    }
+
+    // 重新获取模型信息（包含关联）
+    const createdModel = await Model.findByPk(model.id, {
+      include: [
+        { model: ModelProvider, as: 'provider', attributes: ['id', 'name'] },
+        { model: Department, as: 'departments', attributes: ['id', 'name'], through: { attributes: [] } }
+      ]
+    });
+
+    response.success(res, createdModel, '创建成功', 201);
   } catch (error) {
     next(error);
   }
@@ -119,7 +223,9 @@ const updateModel = async (req, res, next) => {
       type, 
       maxTokens, 
       description, 
-      isActive 
+      isActive,
+      restrictDepartments,
+      departmentIds
     } = req.body;
 
     const model = await Model.findByPk(id);
@@ -142,10 +248,34 @@ const updateModel = async (req, res, next) => {
       type: type !== undefined ? type : model.type,
       maxTokens: maxTokens !== undefined ? maxTokens : model.maxTokens,
       description: description !== undefined ? description : model.description,
-      isActive: isActive !== undefined ? isActive : model.isActive
+      isActive: isActive !== undefined ? isActive : model.isActive,
+      restrictDepartments: restrictDepartments !== undefined ? (restrictDepartments ? 1 : 0) : model.restrictDepartments
     });
 
-    response.success(res, model, '更新成功');
+    // 更新部门权限
+    if (restrictDepartments !== undefined) {
+      // 先删除现有权限
+      await ModelDepartment.destroy({ where: { modelId: id } });
+      
+      // 如果限制部门且有部门列表，添加新权限
+      if (restrictDepartments && departmentIds && departmentIds.length > 0) {
+        const deptRecords = departmentIds.map(deptId => ({
+          modelId: parseInt(id),
+          departmentId: deptId
+        }));
+        await ModelDepartment.bulkCreate(deptRecords);
+      }
+    }
+
+    // 重新获取模型信息（包含关联）
+    const updatedModel = await Model.findByPk(id, {
+      include: [
+        { model: ModelProvider, as: 'provider', attributes: ['id', 'name'] },
+        { model: Department, as: 'departments', attributes: ['id', 'name'], through: { attributes: [] } }
+      ]
+    });
+
+    response.success(res, updatedModel, '更新成功');
   } catch (error) {
     next(error);
   }
@@ -164,6 +294,9 @@ const deleteModel = async (req, res, next) => {
       return response.error(res, '模型不存在', 404);
     }
 
+    // 删除权限关联（级联删除会自动处理，但为保险起见手动删除）
+    await ModelDepartment.destroy({ where: { modelId: id } });
+    
     await model.destroy();
     response.success(res, null, '删除成功');
   } catch (error) {
@@ -226,6 +359,7 @@ const getDefaults = async (req, res, next) => {
 
 module.exports = {
   getModels,
+  getAvailableModels,
   getModel,
   createModel,
   updateModel,

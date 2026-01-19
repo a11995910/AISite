@@ -25,6 +25,8 @@ const useChatStore = create((set, get) => ({
   searchEngine: 'tavily',
   // 选中的知识库IDs
   selectedKnowledgeBaseIds: [],
+  // 选中的模型ID
+  selectedModelId: null,
 
   /**
    * 设置对话列表
@@ -128,6 +130,11 @@ const useChatStore = create((set, get) => ({
    * 设置选中的知识库
    */
   setSelectedKnowledgeBaseIds: (ids) => set({ selectedKnowledgeBaseIds: ids }),
+
+  /**
+   * 设置选中的模型
+   */
+  setSelectedModelId: (id) => set({ selectedModelId: id }),
 
   /**
    * 重置聊天状态

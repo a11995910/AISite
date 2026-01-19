@@ -57,6 +57,12 @@ const Model = sequelize.define('models', {
     defaultValue: 1,
     field: 'is_active',
     comment: '是否启用'
+  },
+  restrictDepartments: {
+    type: DataTypes.TINYINT,
+    defaultValue: 0,
+    field: 'restrict_departments',
+    comment: '是否限制部门权限，0=所有人可用，1=限制部门'
   }
 }, {
   tableName: 'models',

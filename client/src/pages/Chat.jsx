@@ -141,7 +141,7 @@ const ChatPage = () => {
     if (!content.trim() || sending) return;
     
     // 提取选项
-    const { mode = 'chat', files = [] } = options;
+    const { mode = 'chat', files = [], modelId } = options;
 
     let conversationId = currentConversationId;
 
@@ -227,7 +227,8 @@ const ChatPage = () => {
           knowledgeBaseIds: selectedKnowledgeBaseIds,
           agentId: currentAgent?.id,
           mode,
-          files: files
+          files: files,
+          modelId
         })
       });
 

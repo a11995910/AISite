@@ -13,7 +13,9 @@ import {
   message, 
   Popconfirm, 
   Typography,
-  Switch
+  Switch,
+  Tree,
+  Alert
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -21,7 +23,9 @@ import {
   DeleteOutlined,
   StarOutlined,
   StarFilled,
-  ApiOutlined
+  ApiOutlined,
+  LockOutlined,
+  UnlockOutlined
 } from '@ant-design/icons';
 import { 
   getModels, 
@@ -31,24 +35,31 @@ import {
   setDefaultModel,
   getProviders
 } from '../api/model';
+import { getDepartmentTree } from '../api/user';
 
 const { Title } = Typography;
 const { TextArea } = Input;
 
 /**
  * 模型配置页面
+ * 支持部门权限设置
  */
 const Models = () => {
   const [loading, setLoading] = useState(false);
   const [models, setModels] = useState([]);
   const [providers, setProviders] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [allDeptIds, setAllDeptIds] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingModel, setEditingModel] = useState(null);
+  const [restrictDepartments, setRestrictDepartments] = useState(false);
+  const [selectedDeptKeys, setSelectedDeptKeys] = useState([]);
   const [form] = Form.useForm();
 
   useEffect(() => {
     fetchModels();
     fetchProviders();
+    fetchDepartments();
   }, []);
 
   const fetchModels = async () => {
@@ -77,6 +88,50 @@ const Models = () => {
     }
   };
 
+  /**
+   * 获取部门树并提取所有部门ID
+   */
+  const fetchDepartments = async () => {
+    try {
+      const res = await getDepartmentTree();
+      if (res.code === 200) {
+        const treeData = transformDeptTree(res.data);
+        setDepartments(treeData);
+        
+        // 提取所有部门ID用于默认全选
+        const ids = extractAllIds(res.data);
+        setAllDeptIds(ids);
+      }
+    } catch (error) {
+      console.error('获取部门列表失败:', error);
+    }
+  };
+
+  /**
+   * 转换为 Tree 组件格式
+   */
+  const transformDeptTree = (data) => {
+    return data.map(item => ({
+      key: item.id,
+      title: item.name,
+      children: item.children ? transformDeptTree(item.children) : []
+    }));
+  };
+
+  /**
+   * 递归提取所有部门ID
+   */
+  const extractAllIds = (data) => {
+    let ids = [];
+    data.forEach(item => {
+      ids.push(item.id);
+      if (item.children && item.children.length > 0) {
+        ids = ids.concat(extractAllIds(item.children));
+      }
+    });
+    return ids;
+  };
+
   const openModal = (model = null) => {
     setEditingModel(model);
     if (model) {
@@ -89,9 +144,16 @@ const Models = () => {
         description: model.description,
         isActive: model.isActive === 1
       });
+      // 设置权限状态
+      setRestrictDepartments(model.restrictDepartments === 1);
+      // 设置已选部门
+      const deptIds = model.departments?.map(d => d.id) || [];
+      setSelectedDeptKeys(deptIds);
     } else {
       form.resetFields();
       form.setFieldsValue({ type: 'chat', maxTokens: 4096, isActive: true });
+      setRestrictDepartments(false);
+      setSelectedDeptKeys([]);
     }
     setModalVisible(true);
   };
@@ -101,7 +163,9 @@ const Models = () => {
       const values = await form.validateFields();
       const data = {
         ...values,
-        isActive: values.isActive ? 1 : 0
+        isActive: values.isActive ? 1 : 0,
+        restrictDepartments: restrictDepartments,
+        departmentIds: restrictDepartments ? selectedDeptKeys : []
       };
       
       if (editingModel) {
@@ -140,9 +204,27 @@ const Models = () => {
     }
   };
 
+  /**
+   * 限制部门开关变化
+   */
+  const handleRestrictChange = (checked) => {
+    setRestrictDepartments(checked);
+    // 开启限制时，默认全选所有部门
+    if (checked && selectedDeptKeys.length === 0) {
+      setSelectedDeptKeys([...allDeptIds]);
+    }
+  };
+
+  /**
+   * 部门树选择变化
+   */
+  const handleDeptCheck = (checkedKeys) => {
+    setSelectedDeptKeys(checkedKeys);
+  };
+
   const typeMap = {
     chat: { text: '对话', color: 'blue' },
-    image: { text: '绘图', color: 'blue' },
+    image: { text: '绘图', color: 'purple' },
     embedding: { text: '向量', color: 'cyan' }
   };
 
@@ -179,9 +261,19 @@ const Models = () => {
       )
     },
     {
-      title: '最大Token',
-      dataIndex: 'maxTokens',
-      render: (val) => val?.toLocaleString()
+      title: '权限',
+      dataIndex: 'restrictDepartments',
+      render: (restrict, record) => (
+        restrict === 1 ? (
+          <Tag color="orange" icon={<LockOutlined />}>
+            限{record.departments?.length || 0}个部门
+          </Tag>
+        ) : (
+          <Tag color="green" icon={<UnlockOutlined />}>
+            全员可用
+          </Tag>
+        )
+      )
     },
     {
       title: '状态',
@@ -256,7 +348,7 @@ const Models = () => {
         open={modalVisible}
         onOk={handleSubmit}
         onCancel={() => setModalVisible(false)}
-        width={500}
+        width={600}
         destroyOnClose
       >
         <Form 
@@ -319,6 +411,48 @@ const Models = () => {
             valuePropName="checked"
           >
             <Switch checkedChildren="启用" unCheckedChildren="禁用" />
+          </Form.Item>
+
+          {/* 权限设置部分 */}
+          <Form.Item label="部门权限">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <Switch 
+                checked={restrictDepartments}
+                onChange={handleRestrictChange}
+              />
+              <span style={{ color: restrictDepartments ? '#faad14' : '#52c41a' }}>
+                {restrictDepartments ? '限制指定部门可用' : '所有人可用'}
+              </span>
+            </div>
+            
+            {restrictDepartments && (
+              <>
+                <Alert 
+                  message="勾选允许使用此模型的部门"
+                  type="info"
+                  showIcon
+                  style={{ marginBottom: 12 }}
+                />
+                <div style={{ 
+                  border: '1px solid #d9d9d9', 
+                  borderRadius: 6, 
+                  padding: 12,
+                  maxHeight: 200,
+                  overflow: 'auto'
+                }}>
+                  <Tree
+                    checkable
+                    defaultExpandAll
+                    checkedKeys={selectedDeptKeys}
+                    onCheck={handleDeptCheck}
+                    treeData={departments}
+                  />
+                </div>
+                <div style={{ marginTop: 8, color: '#999', fontSize: 12 }}>
+                  已选择 {selectedDeptKeys.length} 个部门
+                </div>
+              </>
+            )}
           </Form.Item>
         </Form>
       </Modal>

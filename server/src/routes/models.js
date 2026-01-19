@@ -10,7 +10,10 @@ const { adminOnly } = require('../middlewares/auth');
 // 获取默认模型
 router.get('/defaults', modelController.getDefaults);
 
-// 获取模型列表
+// 获取用户可用的模型列表（权限过滤，用户端使用）
+router.get('/available', modelController.getAvailableModels);
+
+// 获取模型列表（管理端使用）
 router.get('/', modelController.getModels);
 
 // 获取单个模型
