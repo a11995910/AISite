@@ -97,16 +97,7 @@
   line-height: 1.6 !important;
 }
 
-/* Assistant Message */
-.embed-chat .message-wrapper.assistant .message-content {
-  background: transparent !important;
-  padding: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: var(--text-primary) !important;
-  font-size: 15px !important;
-  line-height: 1.7 !important;
-}
+
 
 /* Role & Avatars */
 .embed-chat .message-role {
