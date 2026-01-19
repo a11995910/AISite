@@ -5,7 +5,6 @@
 const express = require('express');
 const router = express.Router();
 const knowledgeController = require('../controllers/knowledgeController');
-const { adminOnly } = require('../middlewares/auth');
 
 /**
  * 权限检查中间件
